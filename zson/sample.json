@@ -1,0 +1,10 @@
+{
+    "skdoc": {
+        "desc": "Returns the size in bytes in human readable format.",
+        "args": [
+            {
+                "value": "Must be a uint64"
+            }
+        ]
+    }
+}

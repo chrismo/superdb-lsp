@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>name</key>
+    <string>ZSON</string>
+    <key>uuid</key>
+    <string>0516A73B-9424-457A-8B42-256804160B63</string>
+    <key>description</key>
+    <string>ZSON data format</string>
+    <key>contactName</key>
+    <string>chrismo</string>
+    <key>contactEmailRot13</key>
+    <string>puevfzb@pynof.bet</string>
+    <key>mainMenu</key>
+    <dict>
+        <key>items</key>
+        <array>
+            <string>C82D7D0B-8BB9-4151-9595-67618C62437F</string>
+            <string>B5880AC0-622A-45B2-9127-E9B93AD55094</string>
+            <string>------------------------------------</string>
+            <string>2E3B5811-3354-43F6-8374-054C30BE3729</string>
+        </array>
+    </dict>
+</dict>
+</plist>
