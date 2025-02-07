@@ -1,4 +1,8 @@
-// help me out here
+// this is a single line comment
+// TODO: gotta to do stuff (no TODO highlighting for free here? bummer)
 op myop(): (
-  over this | head 1
+  over this
+  | s1:='single quote string',s2:="double-quote string"
+  | dur:=duration("3d")
+  | {a: int64("5")}
 )

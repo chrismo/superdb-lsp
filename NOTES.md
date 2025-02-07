@@ -3,8 +3,14 @@
 ## TODO
                
 Small scale TODOs listed here. Anything bigger should be a GitHub Issue.
+                      
+[//]: # (TODO: string quoting not working in kformat_bytes in superkit - it's odd)
 
-[//]: # (TODO: Add spq constants)
+it's like - on 1st pass it won't but when certain unknown changes occur while
+typing it will suddenly render the string. maybe the ordering of things needs to
+change. 
+
+[//]: # (TODO: Finish out porting thinsg from Zed Zui syntax)
 [//]: # (TODO: Try the original TextMate JSON with ZSON)
 [//]: # (TODO: Folding by parens isn't working?)
 [//]: # (TODO: Check GitHub issues)
@@ -25,6 +31,9 @@ file](https://github.com/SublimeText/PackageDev/blob/ec462749684d8b4a5cd4e362639
 conversion tool out there, I'm presuming that would work too.
 
 ## References
+
+[Zed Syntax in Zui source
+code](https://github.com/brimdata/zui/blob/edbe753b548b56d140802aae65ae14a190ea5e42/apps/zui/src/core/zed-syntax.ts#L26).
 
 1.5 TextMate [Example
 Grammar](https://macromates.com/manual/en/language_grammars#example_grammar)
