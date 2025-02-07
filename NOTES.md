@@ -15,18 +15,9 @@ change.)
 
 ## Build Process
 
-Currently: edit json, build to plist in Sublime, copy plist into the bundle,
-go through the manual Settings "reload" process.
-                           
-[//]: # (TODO: replace Sublime building json -> plist) 
-
-I'd presume building from json to plist (xml) is something I could automate
-without the use of Sublime.
-
-It's done with [this Python
-file](https://github.com/SublimeText/PackageDev/blob/ec462749684d8b4a5cd4e362639007d339e72bb7/plugins/file_conversion.py#L65)
-- so, at the very least we could use that. If there's any generic json to xml
-conversion tool out there, I'm presuming that would work too.
+Currently: edit json, copy json into the bundle with `build` script, go through
+the manual Settings "reload" process: `Open Settings -> Remove -> Apply ->
+Re-add -> Close.` (See Reloading in RubyMine section below for more).
 
 ## References
 

@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-cp -v ./supersql/spq-tm-scratch.plist ./supersql/spq.tmb/Syntaxes/spq.plist
+cp -v ./supersql/spq-tm-scratch.json ./supersql/spq.tmb/Syntaxes/spq.tmLanguage.json
