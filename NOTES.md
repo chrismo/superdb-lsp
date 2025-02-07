@@ -1,4 +1,13 @@
 # Notes
+            
+## TODO
+               
+Small scale TODOs listed here. Anything bigger should be a GitHub Issue.
+
+[//]: # (TODO: Add spq constants)
+[//]: # (TODO: Try the original TextMate JSON with ZSON)
+[//]: # (TODO: Folding by parens isn't working?)
+[//]: # (TODO: Check GitHub issues)
 
 ## Build Process
 

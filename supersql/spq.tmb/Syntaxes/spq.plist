@@ -35,6 +35,14 @@
 				</dict>
 			</array>
 		</dict>
+		<dict>
+			<key>begin</key>
+			<string>//</string>
+			<key>end</key>
+			<string>$</string>
+			<key>name</key>
+			<string>comment.line.double-slash.spq</string>
+		</dict>
 	</array>
 	<key>scopeName</key>
 	<string>source.spq</string>

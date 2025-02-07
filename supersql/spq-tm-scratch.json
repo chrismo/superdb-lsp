@@ -18,6 +18,11 @@
           "match": "\\."
         }
       ]
+    },
+    {
+      "name": "comment.line.double-slash.spq",
+      "begin": "//",
+      "end": "$"
     }
   ]
 }

@@ -14,7 +14,7 @@
 	<array>
 		<dict>
 			<key>match</key>
-			<string>\b(over|this)\b</string>
+			<string>\b(over)\b</string>
 			<key>name</key>
 			<string>keyword.control.spq</string>
 		</dict>
@@ -34,6 +34,14 @@
 					<string>constant.character.escape.spq</string>
 				</dict>
 			</array>
+		</dict>
+		<dict>
+			<key>begin</key>
+			<string>//</string>
+			<key>end</key>
+			<string>$</string>
+			<key>name</key>
+			<string>comment.line.double-slash.spq</string>
 		</dict>
 	</array>
 	<key>scopeName</key>
