@@ -1,40 +1,62 @@
-# How To
+# Notes
 
-THE GOAL: just get your foot in the door with the simplest highlighting! Make
-that first end-to-end connection! Figure out ANY build path that'll get
-SOMETHING highlighted.
+## Build Process
 
-I'm trying to triangulate this through Sublime, VS Code, and targeting something
-compatible for JetBrains to import.
+Currently: edit json, build to plist in Sublime, copy plist into the bundle,
+go through the manual Settings "reload" process.
+                           
+[//]: # (TODO: replace Sublime building json -> plist) 
 
-The ocaml.tmb DOES import and does syntax highlight the helloworld.ml file.
+I'd presume building from json to plist (xml) is something I could automate
+without the use of Sublime.
 
-I git cloned the ocaml.tmbundle project, but RubyMine wouldn't load it from that
-exact location, cuz of the name problem, even if I tried renaming it in-situ. So
-I copied the whole structure into this superdb-syntaxes project, and
-successfully imported that into RubyMine's TextMate Bundles plugin.
+## References
 
-zson-sublime.yaml: this is a COPY of a JSON file found
-[here](https://github.com/sublimehq/Packages/blob/759d6eed9b4beed87e602a23303a121c3a6c2fb3/JSON/JSON.sublime-syntax),
-and I'm trying to make the smallest of modifications to get it to highlight my
-sample.zson file, which for the moment is pure JSON (and it should work, since
-ZSON is a superset of JSON, right? Keys can be strings, right? this works, but
-it still outputs zson with non-string keys - `zq -i zson 'yield this'
-sample.json`)
-    
-zson-sublime.plist: a FAILED attempt IN Sublime to build zson-sublime.yaml
-to plist, because of some error message about keys needing to be strings. BUT,
-this SHOULD be a slightly edited copy of the JSON file inside the sublime
-source repo anyway. Hmm :thinking-face:. Weird.
+1.5 TextMate [Example
+Grammar](https://macromates.com/manual/en/language_grammars#example_grammar)
 
-zson-scratch.yaml is using Sublime Text to generate a brand New Syntax... from
-scratch from their menus, and seeing if we can perhaps get the SIMPLEST
-highlighting working IN RubyMine.
+[Older Sublime
+docs](https://sublime-text-unofficial-documentation.readthedocs.io/en/sublime-text-2/reference/syntaxdefs.html)
+detailing Compatibility with TextMate language files, and is a fairly compact
+reference.
 
-I started wih VS Code, and the extension to generate the plist ... but it _seems
-like_ Sublime is the more authoritative resource here. I came here through
-Perplexity suggesting a Sublime YAML for the zq language, and then noticing
-`bat` (while researching Markdown readers for the skdoc tool) has superior
-support for syntax highlighting for code blocks inside Markdown. How? It points
-to all of the built-in Sublime syntax packages, and then a host of other repos
-throughout GitHub-land.
+This [community
+thread](https://intellij-support.jetbrains.com/hc/en-us/community/posts/12784192098066/comments/12899228677010)
+has a good pointer to the JetBrains implementation of the TextMate Bundles - but
+it's out of date - [I found it in the latest
+repo](https://github.com/JetBrains/intellij-community/blob/master/plugins/textmate/core/src/org/jetbrains/plugins/textmate/language/syntax/selector/TextMateSelectorParser.kt).
+                                   
+[This
+class](https://github.com/JetBrains/intellij-community/blob/master/plugins/textmate/core/src/org/jetbrains/plugins/textmate/Constants.kt)
+appears to show the keywords in the TextMate Bundles plugin. Which seems to
+confirm that `file_extensions` isn't going to be read out of the .plist, but
+fileTypes will.
+
+[Sublime Syntax](https://www.sublimetext.com/docs/syntax.html) - this is clear
+that this is their own way of doing it, and we shouldn't expect RubyMine to work
+with these at all, which is sort of what I've seen so far. The definitions are
+very different.
+
+## json format in RubyMine? No
+
+[//]: # (TODO: triple-check json read by RubyMine? Simplify build process) 
+
+No. I thought I read somewhere that the .json format will be read by RubyMine in
+addition to .plist ... but nope, it doesn't appear to work.
+
+## Reloading in RubyMine
+
+As I make changes, do I have to remove/re-add to force RubyMine to reload the
+bundle? What's the minimum effort as I iterate on things.
+
+Meh, looks like you have to remove and re-add in the Settings dialog. :/ Even
+closing just the current project isn't enough. Presumably closing the whole IDE
+would work, but that won't be fast.
+
+```
+WORKS: Open Settings -> Remove -> Apply -> Re-add -> Close.
+NOPE:  Open Settings -> Remove -> Re-add -> Close.
+```
+
+If a file is visible behind the dialog, highlighting won't update until after
+the Settings dialog is closed, not Apply.

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+cp -v ./supersql/spq-tm-scratch.plist ./supersql/spq.tmb/Syntaxes/spq.plist
