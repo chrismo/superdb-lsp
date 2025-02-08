@@ -1,5 +1,5 @@
 # Notes
-            
+         
 [//]: # (Small scale TODOs listed here. Anything bigger should be a GitHub Issue.)
                       
 [//]: # (it's like - on 1st pass it won't but when certain unknown changes occur while
@@ -48,6 +48,10 @@ fileTypes will.
 that this is their own way of doing it, and we shouldn't expect RubyMine to work
 with these at all, which is sort of what I've seen so far. The definitions are
 very different.
+
+bat cli tool [loads in a very comprehensive
+list](https://github.com/sharkdp/bat/tree/master/assets/syntaxes) of TextMate
+Grammars.
 
 ## Reloading in RubyMine
 
