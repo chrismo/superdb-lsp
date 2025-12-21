@@ -1,15 +1,336 @@
-// mmm ... pi
-const pi=3.14
+// ============================================================
+// SuperSQL (SPQ) Syntax Showcase
+// This file demonstrates all supported syntax for testing
+// ============================================================
 
-// this is a single line comment
-// TODO: gotta to do stuff (no TODO highlighting for free here? bummer)
-op myop(): (
+// Single-line comment with //
+-- Single-line comment with -- (SQL style)
+
+/*
+  Multi-line block comment
+  spanning multiple lines
+*/
+
+// -----------------------------
+// Constants and Declarations
+// -----------------------------
+
+const pi = 3.14159
+const name = "SuperDB"
+const enabled = true
+const disabled = false
+const nothing = null
+
+// -----------------------------
+// Operator Definitions
+// -----------------------------
+
+op myOperator(): (
   over this
-  | s1:='single yield string',s2:="double-quote string"
-  | dur:=duration("3d")
-  | yield {a:int64("5"),b:max(uint64(34)),c:{d:|"a":12|}}
+  | s1 := 'single quote string'
+  | s2 := "double quote string"
+  | dur := duration("3d")
+  | yield {a: int64("5"), b: max(uint64(34))}
 )
 
-func kcast(): (
+// -----------------------------
+// Function Definitions
+// -----------------------------
+
+func double(x): (
+  x * 2
+)
+
+func castToUint8(): (
   uint8(2)
 )
+
+// -----------------------------
+// F-strings (Template Strings)
+// -----------------------------
+
+const greeting = f"Hello, {name}!"
+const info = f'Count is {count(this)} items'
+const nested = f"Value: {uint64(42)}"
+
+// -----------------------------
+// Types and Casting
+// -----------------------------
+
+// Integer types
+uint8(255)
+int16(-32768)
+int32(2147483647)
+int64(9223372036854775807)
+uint128(340282366920938463463374607431768211455)
+int256(0)
+
+// Float types
+float32(3.14)
+float64(2.718281828)
+decimal64(99.99)
+decimal128(123456789.123456789)
+
+// Other types
+bool(true)
+bytes(0x48656C6C6F)
+string("hello world")
+ip(192.168.1.1)
+net(10.0.0.0/8)
+duration(1h30m)
+time(2024-01-15T10:30:00Z)
+
+// Type casting operators
+x :: int64
+y :> string
+
+// -----------------------------
+// Operators
+// -----------------------------
+
+// Pipe operators
+from "data.json" |> where status == "active" |> sort timestamp
+
+// Pipeline with |
+from "data.json"
+  | where status == "active"
+  | cut name, email
+  | sort name
+
+// Assignment
+result := count()
+
+// Spread
+{...record, newField: "value"}
+
+// Comparison
+x == y
+x != y
+x <> y
+x < y
+x > y
+x <= y
+x >= y
+
+// Logical
+a && b
+a || b
+!a
+
+// Arithmetic
+a + b
+a - b
+a * b
+a / b
+a % b
+
+// -----------------------------
+// Built-in Operators
+// -----------------------------
+
+from "input.json"
+  | where status == "ok"
+  | cut id, name, value
+  | sort -value
+  | head 10
+
+from "logs.json"
+  | search "error" or "warning"
+  | summarize count() by level
+
+fork (
+  => where type == "A" | yield {category: "alpha"}
+  => where type == "B" | yield {category: "beta"}
+)
+
+switch type (
+  case "user" => yield {kind: "person"}
+  case "org" => yield {kind: "organization"}
+  default => yield {kind: "unknown"}
+)
+
+join left on id == other.id
+
+// -----------------------------
+// Built-in Functions
+// -----------------------------
+
+// String functions
+lower("HELLO")
+upper("hello")
+trim("  spaced  ")
+split("a,b,c", ",")
+replace("hello", "l", "L")
+len("test")
+strftime(now(), "%Y-%m-%d")
+
+// Math functions
+abs(-42)
+ceil(3.2)
+floor(3.8)
+round(3.5)
+sqrt(16)
+pow(2, 10)
+log(100)
+
+// Type functions
+typeof(value)
+typename(value)
+kind(value)
+is(value, <int64>)
+has(record, "field")
+missing(record, "field")
+cast(value, <string>)
+
+// Network functions
+cidr_match(10.0.0.1, 10.0.0.0/8)
+network_of(10.0.0.1)
+parse_uri("https://example.com/path")
+
+// Data functions
+flatten(nested_array)
+unflatten(record)
+fields(record)
+shape(value)
+coalesce(a, b, c)
+
+// Error handling
+error("something went wrong")
+has_error(value)
+is_error(value)
+quiet(risky_operation)
+
+// -----------------------------
+// Aggregate Functions
+// -----------------------------
+
+summarize
+  total := sum(amount),
+  average := avg(amount),
+  minimum := min(amount),
+  maximum := max(amount),
+  items := count(),
+  distinct_items := dcount(category),
+  all_values := collect(value),
+  value_map := collect_map(key, value),
+  merged := union(tags)
+by category
+
+// -----------------------------
+// SQL Syntax
+// -----------------------------
+
+SELECT id, name, email
+FROM users
+WHERE status = 'active'
+  AND created_at > '2024-01-01'
+ORDER BY name ASC
+LIMIT 100
+
+SELECT
+  category,
+  COUNT(*) AS total,
+  AVG(price) AS avg_price
+FROM products
+WHERE price BETWEEN 10 AND 100
+  AND name LIKE '%widget%'
+GROUP BY category
+HAVING COUNT(*) > 5
+ORDER BY total DESC
+
+-- Joins
+SELECT u.name, o.amount
+FROM users u
+INNER JOIN orders o ON u.id = o.user_id
+LEFT JOIN addresses a ON u.id = a.user_id
+WHERE o.amount > 100
+
+-- Set operations
+SELECT id FROM table_a
+UNION ALL
+SELECT id FROM table_b
+EXCEPT
+SELECT id FROM excluded
+
+-- CASE expressions
+SELECT
+  id,
+  CASE status
+    WHEN 'active' THEN 'Active User'
+    WHEN 'pending' THEN 'Pending Approval'
+    ELSE 'Unknown'
+  END AS status_label
+FROM users
+
+-- Window functions
+SELECT
+  id,
+  amount,
+  SUM(amount) OVER (PARTITION BY category ORDER BY date) AS running_total
+FROM transactions
+
+-- WITH clause (CTEs)
+WITH active_users AS (
+  SELECT * FROM users WHERE status = 'active'
+)
+SELECT * FROM active_users WHERE role = 'admin'
+
+// -----------------------------
+// Lambda Expressions
+// -----------------------------
+
+lambda x: x * 2
+fn x, y: x + y
+map(items, lambda x: x.value)
+
+// -----------------------------
+// Complex Expressions
+// -----------------------------
+
+// Nested records
+{
+  user: {
+    name: "Alice",
+    email: "alice@example.com",
+    tags: ["admin", "active"]
+  },
+  metadata: {
+    created: now(),
+    version: uint64(1)
+  }
+}
+
+// Conditional expressions
+status == "active" ? "enabled" : "disabled"
+
+// Chained operations with mixed syntax
+from "events.json"
+  | where timestamp >= time("2024-01-01")
+  | summarize count := count() by hour := bucket(timestamp, 1h)
+  | sort hour
+  | yield {hour, count, percentage: float64(count) / float64(total) * 100}
+
+// -----------------------------
+// Escape Sequences
+// -----------------------------
+
+"newline: \n"
+"tab: \t"
+"carriage return: \r"
+"backslash: \\"
+"quote: \""
+"hex: \x41"
+"unicode: \u0041"
+
+// -----------------------------
+// Numbers
+// -----------------------------
+
+42
+-17
+3.14159
+0.001
+1e10
+2.5e-3
+0xFF
+0xDEADBEEF
