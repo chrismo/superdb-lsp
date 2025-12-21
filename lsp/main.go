@@ -11,10 +11,25 @@ import (
 	"strings"
 )
 
+// Version information - update on each release
+const (
+	Version   = "0.1.0"
+	BuildDate = "" // Set via ldflags: -X main.BuildDate=2025-12-21
+)
+
 // LSP Server for SuperSQL (SPQ) language
 // Provides diagnostics and completion support using brimdata/super/compiler
 
 func main() {
+	// Handle --version flag
+	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+		fmt.Printf("superdb-lsp %s\n", Version)
+		if BuildDate != "" {
+			fmt.Printf("Build date: %s\n", BuildDate)
+		}
+		os.Exit(0)
+	}
+
 	log.SetOutput(os.Stderr)
 	log.Println("SuperSQL LSP server starting...")
 
