@@ -22,10 +22,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Extract version from main.go
+      - name: Extract version from version.go
         id: version
         run: |
-          VERSION=$(grep 'Version.*=' lsp/main.go | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          VERSION=$(grep 'Version.*=' lsp/version.go | head -1 | sed 's/.*"\(.*\)".*/\1/')
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
 
