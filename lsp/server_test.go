@@ -672,10 +672,9 @@ func TestCompletionSQLKeywords(t *testing.T) {
 func TestCompletionOperators(t *testing.T) {
 	// Test that all operators are available
 	ops := []string{
-		"assert", "combine", "cut", "drop", "fork", "fuse",
+		"assert", "cut", "drop", "fork", "fuse",
 		"head", "join", "merge", "over", "pass", "put",
 		"rename", "sort", "summarize", "tail", "uniq", "where", "yield",
-		// New operators
 		"debug", "explode", "output", "skip", "unnest", "values",
 	}
 

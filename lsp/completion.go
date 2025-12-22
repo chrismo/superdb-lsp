@@ -89,22 +89,19 @@ var keywords = []struct {
 	{"value", "Value keyword"},
 }
 
-// Built-in operators/ops - from PEG grammar and zui
+// Built-in operators/ops - from PEG grammar
 var operators = []struct {
 	name   string
 	detail string
 }{
 	{"assert", "Assert condition"},
-	{"combine", "Combine multiple streams"},
 	{"cut", "Select and reorder fields"},
 	{"debug", "Debug output"},
 	{"drop", "Remove fields from records"},
 	{"explode", "Explode array into records"},
-	{"file", "Read from file"},
 	{"fork", "Fork the data flow"},
 	{"from", "Specify data source"},
 	{"fuse", "Fuse schemas together"},
-	{"get", "HTTP GET request"},
 	{"head", "Take first N records"},
 	{"join", "Join two data sources"},
 	{"load", "Load data into pool"},
@@ -142,12 +139,9 @@ var functions = []struct {
 	{"cidr_match", "Match IP against CIDR"},
 	{"coalesce", "First non-null value"},
 	{"compare", "Compare two values"},
-	{"crop", "Crop value to type"},
 	{"date_part", "Extract date component"},
 	{"error", "Create error value"},
-	{"every", "Time bucket interval"},
 	{"fields", "Get record field names"},
-	{"fill", "Fill null values"},
 	{"flatten", "Flatten nested records"},
 	{"floor", "Floor function"},
 	{"grep", "Search with pattern"},
@@ -165,7 +159,6 @@ var functions = []struct {
 	{"levenshtein", "Levenshtein distance"},
 	{"log", "Logarithm"},
 	{"lower", "Convert to lowercase"},
-	{"map", "Map function over array"},
 	{"max", "Maximum of values"},
 	{"min", "Minimum of values"},
 	{"missing", "Create missing value"},
@@ -174,7 +167,6 @@ var functions = []struct {
 	{"network_of", "Get network from IP"},
 	{"now", "Current timestamp"},
 	{"nullif", "Return null if equal"},
-	{"order", "Order type info"},
 	{"parse_sup", "Parse Super format"},
 	{"parse_uri", "Parse URI string"},
 	{"position", "Find substring position"},
@@ -184,15 +176,12 @@ var functions = []struct {
 	{"regexp_replace", "Regex replacement"},
 	{"replace", "String replacement"},
 	{"round", "Round to precision"},
-	{"rune_len", "UTF-8 rune length"},
-	{"shape", "Get value shape"},
 	{"split", "Split string"},
 	{"sqrt", "Square root"},
 	{"strftime", "Format time as string"},
 	{"trim", "Trim whitespace"},
 	{"typename", "Get type name"},
 	{"typeof", "Get type of value"},
-	{"typeunder", "Get underlying type"},
 	{"under", "Get underlying value"},
 	{"unflatten", "Unflatten records"},
 	{"upper", "Convert to uppercase"},
