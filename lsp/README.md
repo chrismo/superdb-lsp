@@ -195,7 +195,7 @@ lsp/
 `assert`, `combine`, `cut`, `debug`, `drop`, `explode`, `fork`, `fuse`, `get`, `head`, `join`, `load`, `merge`, `output`, `over`, `pass`, `put`, `rename`, `sample`, `search`, `skip`, `sort`, `summarize`, `switch`, `tail`, `top`, `uniq`, `unnest`, `values`, `where`, `yield`
 
 ### Functions
-`abs`, `base64`, `bucket`, `cast`, `ceil`, `cidr_match`, `coalesce`, `compare`, `crop`, `date_part`, `error`, `every`, `fields`, `fill`, `flatten`, `floor`, `grep`, `grok`, `has`, `has_error`, `hex`, `is`, `is_error`, `join`, `kind`, `ksuid`, `len`, `length`, `levenshtein`, `log`, `lower`, `map`, `max`, `min`, `missing`, `nameof`, `nest_dotted`, `network_of`, `now`, `nullif`, `order`, `parse_sup`, `parse_uri`, `parse_zson`, `position`, `pow`, `quiet`, `regexp`, `regexp_replace`, `replace`, `round`, `rune_len`, `shape`, `split`, `sqrt`, `strftime`, `trim`, `typename`, `typeof`, `typeunder`, `under`, `unflatten`, `upper`
+`abs`, `base64`, `bucket`, `cast`, `ceil`, `cidr_match`, `coalesce`, `compare`, `crop`, `date_part`, `error`, `every`, `fields`, `fill`, `flatten`, `floor`, `grep`, `grok`, `has`, `has_error`, `hex`, `is`, `is_error`, `join`, `kind`, `ksuid`, `len`, `length`, `levenshtein`, `log`, `lower`, `map`, `max`, `min`, `missing`, `nameof`, `nest_dotted`, `network_of`, `now`, `nullif`, `order`, `parse_sup`, `parse_uri`, `position`, `pow`, `quiet`, `regexp`, `regexp_replace`, `replace`, `round`, `rune_len`, `shape`, `split`, `sqrt`, `strftime`, `trim`, `typename`, `typeof`, `typeunder`, `under`, `unflatten`, `upper`
 
 ### Aggregates
 `and`, `any`, `avg`, `collect`, `collect_map`, `count`, `dcount`, `fuse`, `max`, `min`, `or`, `sum`, `union`

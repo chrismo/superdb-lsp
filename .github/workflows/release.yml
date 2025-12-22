@@ -114,18 +114,11 @@ jobs:
           zip -r ../spq-textmate-bundle.zip spq.tmb
           cd ..
 
-          # Package ZSON TextMate bundle
-          cd zson
-          zip -r ../zson-textmate-bundle.zip zson.tmb
-          cd ..
-
       - name: Upload TextMate artifacts
         uses: actions/upload-artifact@v4
         with:
           name: textmate-bundles
-          path: |
-            spq-textmate-bundle.zip
-            zson-textmate-bundle.zip
+          path: spq-textmate-bundle.zip
 
   release:
     name: Create GitHub Release
@@ -176,9 +169,8 @@ jobs:
             | macOS | ARM64 (Apple Silicon) | `superdb-lsp-darwin-arm64` |
             | Windows | x64 | `superdb-lsp-windows-amd64.exe` |
 
-            #### TextMate Bundles
+            #### TextMate Bundle
             - `spq-textmate-bundle.zip` - SuperSQL syntax highlighting
-            - `zson-textmate-bundle.zip` - ZSON syntax highlighting
 
             ### Installation
 

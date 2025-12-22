@@ -3,7 +3,13 @@
 Syntax highlighting support for [SuperDB](https://github.com/brimdata/super) query languages:
 
 - **SPQ (SuperSQL)** - The SuperDB query language
-- **ZSON** - SuperDB's JSON-like data format
+
+## Components
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| **TextMate bundle** | `supersql/spq.tmb/` | Syntax highlighting (regex-based) |
+| **LSP server** | `lsp/` | Language server for completions, diagnostics ([details](lsp/README.md)) |
 
 ## Supported Editors
 
@@ -21,8 +27,7 @@ Syntax highlighting support for [SuperDB](https://github.com/brimdata/super) que
 1. Install the [TextMate Bundles](https://plugins.jetbrains.com/plugin/7221-textmate-bundles) plugin
 2. Go to **Settings** → **Editor** → **TextMate Bundles**
 3. Click **+** and select the `supersql/spq.tmb` folder from this repository
-4. Optionally add `zson/zson.tmb` for ZSON support
-5. Click **Apply** and **OK**
+4. Click **Apply** and **OK**
 
 **Note:** After making changes to the grammar, you must reload the bundle:
 ```

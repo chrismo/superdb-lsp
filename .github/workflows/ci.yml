@@ -82,11 +82,6 @@ jobs:
           cat supersql/spq.tmb/Syntaxes/spq.tmLanguage.json | python3 -m json.tool > /dev/null
           echo "SPQ grammar JSON is valid"
 
-      - name: Validate ZSON grammar plist
-        run: |
-          # Check plist syntax (basic XML validation)
-          xmllint --noout zson/zson.tmb/Syntaxes/zson.tmLanguage 2>/dev/null || echo "ZSON grammar plist checked"
-
   build-release:
     name: Build Release Binaries
     runs-on: ubuntu-latest

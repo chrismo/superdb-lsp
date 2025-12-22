@@ -177,7 +177,6 @@ var functions = []struct {
 	{"order", "Order type info"},
 	{"parse_sup", "Parse Super format"},
 	{"parse_uri", "Parse URI string"},
-	{"parse_zson", "Parse ZSON string"},
 	{"position", "Find substring position"},
 	{"pow", "Power function"},
 	{"quiet", "Suppress errors"},

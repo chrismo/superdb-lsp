@@ -12,13 +12,6 @@ superdb-syntaxes/
 │   │   └── Syntaxes/
 │   │       └── spq.tmLanguage.json # Main grammar file
 │   └── sample.spq                  # Test/sample file
-├── zson/
-│   ├── zson.tmb/                   # ZSON TextMate bundle
-│   │   ├── info.plist
-│   │   └── Syntaxes/
-│   │       └── zson.tmLanguage     # ZSON grammar (XML plist)
-│   ├── sample.json
-│   └── sample.zson
 ├── README.md
 ├── CONTRIBUTING.md
 └── NOTES.md                        # Development notes
@@ -28,8 +21,7 @@ superdb-syntaxes/
 
 The grammars use TextMate format, which is supported by many editors. Two formats exist:
 
-1. **JSON** (`.tmLanguage.json`) - Easier to edit, used for SPQ
-2. **XML plist** (`.tmLanguage`) - Traditional format, used for ZSON
+The grammar uses **JSON** format (`.tmLanguage.json`), which is easier to read and edit than the traditional XML plist format.
 
 ## Adding New Syntax Features
 
