@@ -14,11 +14,15 @@ Language Server Protocol (LSP) implementation for SuperSQL (SPQ), providing real
 
 ## Grammar Synchronization
 
-The LSP server's keyword, function, operator, and type lists are synchronized with:
-- **brimdata/zed PEG grammar**: `compiler/parser/parser.peg`
-- **brimdata/zed function registry**: `runtime/sam/expr/function/function.go`
-- **brimdata/zed aggregate registry**: `runtime/sam/expr/agg/agg.go`
-- **brimdata/zui Monaco syntax**: `apps/superdb-desktop/src/core/zed-syntax.ts`
+The LSP server's keyword, function, operator, and type lists are synchronized with [brimdata/super](https://github.com/brimdata/super):
+
+| Source File | Provides | Why |
+|-------------|----------|-----|
+| `compiler/parser/parser.peg` | Keywords, operators, types | PEG grammar defines language syntax |
+| `runtime/sam/expr/function/function.go` | Scalar functions | Function names registered at runtime |
+| `runtime/sam/expr/agg/agg.go` | Aggregate functions | Aggregates registered separately |
+
+These files can be updated independently, so version reflects the latest change to any of them.
 
 Last synchronized: December 22, 2025
 

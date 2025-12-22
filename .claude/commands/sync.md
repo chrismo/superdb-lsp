@@ -5,19 +5,29 @@ Use WebFetch or gh instead of curl.
 ## Do all of this autonomously:
 
 ### 1. Fetch Latest Grammar & Version
-Fetch from brimdata/super main branch:
-- `compiler/parser/parser.peg` - keywords, operators, types
-- `runtime/sam/expr/function/function.go` - built-in functions
-- `runtime/sam/expr/agg/agg.go` - aggregate functions
-- **Get the latest commit date for the PEG parser** from `https://api.github.com/repos/brimdata/super/commits?path=compiler/parser/parser.peg&per_page=1`
+
+Fetch these files from brimdata/super main branch:
+
+| File | Provides | Why |
+|------|----------|-----|
+| `compiler/parser/parser.peg` | Keywords, operators, types | The PEG grammar defines the language syntax |
+| `runtime/sam/expr/function/function.go` | Built-in scalar functions | Function names are registered at runtime, not in grammar |
+| `runtime/sam/expr/agg/agg.go` | Aggregate functions | Aggregate names are registered separately from scalar functions |
+
+**Get the latest commit date for each file** (they can be updated independently):
+- `https://api.github.com/repos/brimdata/super/commits?path=compiler/parser/parser.peg&per_page=1`
+- `https://api.github.com/repos/brimdata/super/commits?path=runtime/sam/expr/function/function.go&per_page=1`
+- `https://api.github.com/repos/brimdata/super/commits?path=runtime/sam/expr/agg/agg.go&per_page=1`
 
 ### 2. Compare & Update
+
 Compare against local files and update if needed:
 - `lsp/completion.go` - add any missing keywords/functions/operators/types
 - `supersql/spq.tmb/Syntaxes/spq.tmLanguage.json` - keep TextMate grammar in sync
 
 ### 3. Update Version
-Calculate version from the PEG parser's latest commit date using format `0.YMMDD`:
+
+Calculate version from the **latest commit date across all three source files** using format `0.YMMDD`:
 - Y = last digit of year (e.g., 2025 → 5)
 - MM = 2-digit month
 - DD = 2-digit day
@@ -28,6 +38,7 @@ Update version in:
 - `supersql/spq.tmb/info.plist` - the version string
 
 ### 4. Test
+
 Run the full test suite:
 ```bash
 cd lsp && go build -v && go test -v
@@ -35,6 +46,7 @@ cd lsp && go build -v && go test -v
 Fix any test failures.
 
 ### 5. Build
+
 Build the binary and verify it works:
 ```bash
 cd lsp && go build -o superdb-lsp .
@@ -42,11 +54,13 @@ cd lsp && go build -o superdb-lsp .
 ```
 
 ### 6. Update Docs
+
 Update `lsp/README.md` with:
 - New "Last synchronized" date
 - Any new keywords/functions added to the reference section
 
 ### 7. Commit & Push
+
 If changes were made:
 - Stage all changes
 - Commit with a descriptive message listing what was added/changed
@@ -54,6 +68,7 @@ If changes were made:
 - Push to the current branch
 
 ### 8. Report
+
 Summarize what was done:
 - New version number
 - Number of new items added (by category)
