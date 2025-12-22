@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/brimdata/zed/compiler/parser"
+	"github.com/brimdata/super/compiler/parser"
 )
 
 // publishDiagnostics parses the document and publishes diagnostics
@@ -39,9 +39,8 @@ func (s *Server) publishDiagnostics(uri, text string, version int) (interface{},
 func parseAndGetDiagnostics(text string) []Diagnostic {
 	var diagnostics []Diagnostic
 
-	// Parse using the brimdata/zed compiler parser
-	// ParseZed parses a SuperSQL query and returns an AST
-	_, _, err := parser.ParseZed(nil, text)
+	// Parse using the brimdata/super compiler parser
+	_, err := parser.ParseQuery(text)
 	if err != nil {
 		diag := errorToDiagnostic(text, err)
 		diagnostics = append(diagnostics, diag)

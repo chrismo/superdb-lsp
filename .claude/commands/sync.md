@@ -25,7 +25,7 @@ Compare against local files and update if needed:
 - `lsp/completion.go` - add any missing keywords/functions/operators/types
 - `supersql/spq.tmb/Syntaxes/spq.tmLanguage.json` - keep TextMate grammar in sync
 
-### 3. Update Version
+### 3. Update Version & Dependencies
 
 Calculate version from the **latest commit date across all three source files** using format `0.YMMDD`:
 - Y = last digit of year (e.g., 2025 → 5)
@@ -36,6 +36,12 @@ Calculate version from the **latest commit date across all three source files** 
 Update version in:
 - `lsp/version.go` - the `Version` constant
 - `supersql/spq.tmb/info.plist` - the version string
+
+**Update Go dependency** to match the synced commit:
+```bash
+cd lsp && go get github.com/brimdata/super@<commit-sha> && go mod tidy
+```
+This ensures the parser used for diagnostics matches the synced grammar version.
 
 ### 4. Test
 

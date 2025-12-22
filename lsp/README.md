@@ -4,7 +4,7 @@ Language Server Protocol (LSP) implementation for SuperSQL (SPQ), providing real
 
 ## Features
 
-- **Diagnostics**: Real-time syntax error detection using the brimdata/zed parser
+- **Diagnostics**: Real-time syntax error detection using the brimdata/super parser
 - **Code Completion**: Intelligent suggestions for:
   - Keywords (SQL: `select`, `from`, `where`, `join`, `group`, `order`, etc.)
   - Operators (`sort`, `where`, `yield`, `summarize`, `cut`, `put`, etc.)

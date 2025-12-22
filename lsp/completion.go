@@ -126,7 +126,7 @@ var operators = []struct {
 	{"yield", "Output values"},
 }
 
-// Built-in functions - from brimdata/zed function.go
+// Built-in functions - from brimdata/super function.go
 var functions = []struct {
 	name   string
 	detail string
@@ -187,7 +187,7 @@ var functions = []struct {
 	{"upper", "Convert to uppercase"},
 }
 
-// Built-in aggregate functions - from brimdata/zed agg.go
+// Built-in aggregate functions - from brimdata/super agg.go
 var aggregates = []struct {
 	name   string
 	detail string
