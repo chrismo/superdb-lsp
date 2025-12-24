@@ -836,29 +836,29 @@ func TestDiagnosticsInvalidQueries(t *testing.T) {
 
 func TestKeywordCount(t *testing.T) {
 	// Verify we have a reasonable number of keywords
-	if len(keywords) < 40 {
-		t.Errorf("Expected at least 40 keywords, got %d", len(keywords))
+	if len(Builtins.Keywords()) < 40 {
+		t.Errorf("Expected at least 40 keywords, got %d", len(Builtins.Keywords()))
 	}
 }
 
 func TestOperatorCount(t *testing.T) {
 	// Verify we have a reasonable number of operators
-	if len(operators) < 25 {
-		t.Errorf("Expected at least 25 operators, got %d", len(operators))
+	if len(Builtins.Operators()) < 25 {
+		t.Errorf("Expected at least 25 operators, got %d", len(Builtins.Operators()))
 	}
 }
 
 func TestFunctionCount(t *testing.T) {
 	// Verify we have a reasonable number of functions
-	if len(functions) < 50 {
-		t.Errorf("Expected at least 50 functions, got %d", len(functions))
+	if len(Builtins.Functions()) < 50 {
+		t.Errorf("Expected at least 50 functions, got %d", len(Builtins.Functions()))
 	}
 }
 
 func TestTypeCount(t *testing.T) {
 	// Verify we have a reasonable number of types
-	if len(types) < 35 {
-		t.Errorf("Expected at least 35 types, got %d", len(types))
+	if len(Builtins.Types()) < 35 {
+		t.Errorf("Expected at least 35 types, got %d", len(Builtins.Types()))
 	}
 }
 

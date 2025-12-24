@@ -12,87 +12,48 @@ func getHover(text string, pos Position) *Hover {
 		return nil
 	}
 
-	wordLower := strings.ToLower(word)
-
-	// Check keywords
-	for _, kw := range keywords {
-		if strings.ToLower(kw.name) == wordLower {
-			return &Hover{
-				Contents: MarkupContent{
-					Kind:  MarkupKindMarkdown,
-					Value: fmt.Sprintf("**%s** (keyword)\n\n%s", kw.name, kw.detail),
-				},
-			}
-		}
+	b := Builtins.Lookup(word)
+	if b == nil {
+		return nil
 	}
 
-	// Check operators
-	for _, op := range operators {
-		if strings.ToLower(op.name) == wordLower {
-			return &Hover{
-				Contents: MarkupContent{
-					Kind:  MarkupKindMarkdown,
-					Value: fmt.Sprintf("**%s** (operator)\n\n%s", op.name, op.detail),
-				},
-			}
-		}
+	return &Hover{
+		Contents: MarkupContent{
+			Kind:  MarkupKindMarkdown,
+			Value: formatHoverContent(b),
+		},
 	}
+}
 
-	// Check functions
-	for _, fn := range functions {
-		if strings.ToLower(fn.name) == wordLower {
-			sig := getFunctionSignature(fn.name)
-			if sig != nil {
-				return &Hover{
-					Contents: MarkupContent{
-						Kind:  MarkupKindMarkdown,
-						Value: fmt.Sprintf("```spq\n%s\n```\n\n%s", sig.Label, fn.detail),
-					},
-				}
+// formatHoverContent formats a Builtin into markdown hover content
+func formatHoverContent(b *Builtin) string {
+	switch b.Kind {
+	case KindFunction, KindAggregate:
+		if b.Signature != "" {
+			doc := b.Doc
+			if doc == "" {
+				doc = b.Brief
 			}
-			return &Hover{
-				Contents: MarkupContent{
-					Kind:  MarkupKindMarkdown,
-					Value: fmt.Sprintf("**%s** (function)\n\n%s", fn.name, fn.detail),
-				},
-			}
+			return fmt.Sprintf("```spq\n%s\n```\n\n%s", b.Signature, doc)
 		}
-	}
-
-	// Check aggregates
-	for _, agg := range aggregates {
-		if strings.ToLower(agg.name) == wordLower {
-			sig := getAggregateSignature(agg.name)
-			if sig != nil {
-				return &Hover{
-					Contents: MarkupContent{
-						Kind:  MarkupKindMarkdown,
-						Value: fmt.Sprintf("```spq\n%s\n```\n\n%s", sig.Label, agg.detail),
-					},
-				}
-			}
-			return &Hover{
-				Contents: MarkupContent{
-					Kind:  MarkupKindMarkdown,
-					Value: fmt.Sprintf("**%s** (aggregate)\n\n%s", agg.name, agg.detail),
-				},
-			}
+		kindName := "function"
+		if b.Kind == KindAggregate {
+			kindName = "aggregate"
 		}
-	}
+		return fmt.Sprintf("**%s** (%s)\n\n%s", b.Name, kindName, b.Brief)
 
-	// Check types
-	for _, t := range types {
-		if strings.ToLower(t.name) == wordLower {
-			return &Hover{
-				Contents: MarkupContent{
-					Kind:  MarkupKindMarkdown,
-					Value: fmt.Sprintf("**%s** (type)\n\n%s", t.name, t.detail),
-				},
-			}
-		}
-	}
+	case KindKeyword:
+		return fmt.Sprintf("**%s** (keyword)\n\n%s", b.Name, b.Brief)
 
-	return nil
+	case KindOperator:
+		return fmt.Sprintf("**%s** (operator)\n\n%s", b.Name, b.Brief)
+
+	case KindType:
+		return fmt.Sprintf("**%s** (type)\n\n%s", b.Name, b.Brief)
+
+	default:
+		return fmt.Sprintf("**%s**\n\n%s", b.Name, b.Brief)
+	}
 }
 
 // getWordAtPosition extracts the word at the given position
