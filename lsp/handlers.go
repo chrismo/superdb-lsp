@@ -5,6 +5,15 @@ import (
 	"log"
 )
 
+// response creates an RPCMessage response with the given ID and result
+func response(id interface{}, result interface{}) (interface{}, error) {
+	return RPCMessage{
+		JSONRPC: "2.0",
+		ID:      id,
+		Result:  result,
+	}, nil
+}
+
 // handleInitialize processes the initialize request
 func (s *Server) handleInitialize(msg RPCMessage) (interface{}, error) {
 	var params InitializeParams
@@ -14,10 +23,9 @@ func (s *Server) handleInitialize(msg RPCMessage) (interface{}, error) {
 
 	log.Printf("Initialize: processId=%d, rootUri=%s", params.ProcessID, params.RootURI)
 
-	result := InitializeResult{
+	return response(msg.ID, InitializeResult{
 		Capabilities: ServerCapabilities{
-			// Full document sync - client sends entire document on change
-			TextDocumentSync: 1,
+			TextDocumentSync: 1, // Full document sync
 			CompletionProvider: &CompletionOptions{
 				TriggerCharacters: []string{".", "|", "(", ":", "="},
 				ResolveProvider:   false,
@@ -33,25 +41,14 @@ func (s *Server) handleInitialize(msg RPCMessage) (interface{}, error) {
 			Name:    "superdb-lsp",
 			Version: Version,
 		},
-	}
-
-	return RPCMessage{
-		JSONRPC: "2.0",
-		ID:      msg.ID,
-		Result:  result,
-	}, nil
+	})
 }
 
 // handleShutdown processes the shutdown request
 func (s *Server) handleShutdown(msg RPCMessage) (interface{}, error) {
 	log.Println("Shutdown requested")
 	s.shutdown = true
-
-	return RPCMessage{
-		JSONRPC: "2.0",
-		ID:      msg.ID,
-		Result:  nil,
-	}, nil
+	return response(msg.ID, nil)
 }
 
 // handleDidOpen processes textDocument/didOpen notifications
@@ -68,8 +65,6 @@ func (s *Server) handleDidOpen(msg RPCMessage) (interface{}, error) {
 		uri, params.TextDocument.LanguageID, params.TextDocument.Version)
 
 	s.documents[uri] = text
-
-	// Parse and publish diagnostics
 	return s.publishDiagnostics(uri, text, params.TextDocument.Version)
 }
 
@@ -88,8 +83,6 @@ func (s *Server) handleDidChange(msg RPCMessage) (interface{}, error) {
 		s.documents[uri] = text
 
 		log.Printf("Document changed: %s (version=%d)", uri, params.TextDocument.Version)
-
-		// Parse and publish diagnostics
 		return s.publishDiagnostics(uri, text, params.TextDocument.Version)
 	}
 
@@ -107,7 +100,6 @@ func (s *Server) handleDidClose(msg RPCMessage) (interface{}, error) {
 	delete(s.documents, uri)
 
 	log.Printf("Document closed: %s", uri)
-
 	return nil, nil
 }
 
@@ -118,27 +110,16 @@ func (s *Server) handleCompletion(msg RPCMessage) (interface{}, error) {
 		return nil, err
 	}
 
-	uri := params.TextDocument.URI
-	text, ok := s.documents[uri]
+	text, ok := s.documents[params.TextDocument.URI]
 	if !ok {
-		log.Printf("Document not found: %s", uri)
-		return RPCMessage{
-			JSONRPC: "2.0",
-			ID:      msg.ID,
-			Result:  CompletionList{Items: []CompletionItem{}},
-		}, nil
+		log.Printf("Document not found: %s", params.TextDocument.URI)
+		return response(msg.ID, CompletionList{Items: []CompletionItem{}})
 	}
 
 	log.Printf("Completion request: %s at line=%d, char=%d",
-		uri, params.Position.Line, params.Position.Character)
+		params.TextDocument.URI, params.Position.Line, params.Position.Character)
 
-	items := getCompletions(text, params.Position)
-
-	return RPCMessage{
-		JSONRPC: "2.0",
-		ID:      msg.ID,
-		Result:  CompletionList{Items: items},
-	}, nil
+	return response(msg.ID, CompletionList{Items: getCompletions(text, params.Position)})
 }
 
 // handleHover processes textDocument/hover requests
@@ -148,27 +129,16 @@ func (s *Server) handleHover(msg RPCMessage) (interface{}, error) {
 		return nil, err
 	}
 
-	uri := params.TextDocument.URI
-	text, ok := s.documents[uri]
+	text, ok := s.documents[params.TextDocument.URI]
 	if !ok {
-		log.Printf("Document not found: %s", uri)
-		return RPCMessage{
-			JSONRPC: "2.0",
-			ID:      msg.ID,
-			Result:  nil,
-		}, nil
+		log.Printf("Document not found: %s", params.TextDocument.URI)
+		return response(msg.ID, nil)
 	}
 
 	log.Printf("Hover request: %s at line=%d, char=%d",
-		uri, params.Position.Line, params.Position.Character)
+		params.TextDocument.URI, params.Position.Line, params.Position.Character)
 
-	hover := getHover(text, params.Position)
-
-	return RPCMessage{
-		JSONRPC: "2.0",
-		ID:      msg.ID,
-		Result:  hover,
-	}, nil
+	return response(msg.ID, getHover(text, params.Position))
 }
 
 // handleSignatureHelp processes textDocument/signatureHelp requests
@@ -178,27 +148,16 @@ func (s *Server) handleSignatureHelp(msg RPCMessage) (interface{}, error) {
 		return nil, err
 	}
 
-	uri := params.TextDocument.URI
-	text, ok := s.documents[uri]
+	text, ok := s.documents[params.TextDocument.URI]
 	if !ok {
-		log.Printf("Document not found: %s", uri)
-		return RPCMessage{
-			JSONRPC: "2.0",
-			ID:      msg.ID,
-			Result:  nil,
-		}, nil
+		log.Printf("Document not found: %s", params.TextDocument.URI)
+		return response(msg.ID, nil)
 	}
 
 	log.Printf("Signature help request: %s at line=%d, char=%d",
-		uri, params.Position.Line, params.Position.Character)
+		params.TextDocument.URI, params.Position.Line, params.Position.Character)
 
-	sigHelp := getSignatureHelp(text, params.Position)
-
-	return RPCMessage{
-		JSONRPC: "2.0",
-		ID:      msg.ID,
-		Result:  sigHelp,
-	}, nil
+	return response(msg.ID, getSignatureHelp(text, params.Position))
 }
 
 // handleFormatting processes textDocument/formatting requests
@@ -208,51 +167,36 @@ func (s *Server) handleFormatting(msg RPCMessage) (interface{}, error) {
 		return nil, err
 	}
 
-	uri := params.TextDocument.URI
-	text, ok := s.documents[uri]
+	text, ok := s.documents[params.TextDocument.URI]
 	if !ok {
-		log.Printf("Document not found: %s", uri)
-		return RPCMessage{
-			JSONRPC: "2.0",
-			ID:      msg.ID,
-			Result:  []TextEdit{},
-		}, nil
+		log.Printf("Document not found: %s", params.TextDocument.URI)
+		return response(msg.ID, []TextEdit{})
 	}
 
 	log.Printf("Formatting request: %s (tabSize=%d, insertSpaces=%v)",
-		uri, params.Options.TabSize, params.Options.InsertSpaces)
+		params.TextDocument.URI, params.Options.TabSize, params.Options.InsertSpaces)
 
 	formatted := formatDocument(text, params.Options)
 
 	// If no changes, return empty array
 	if formatted == text {
-		return RPCMessage{
-			JSONRPC: "2.0",
-			ID:      msg.ID,
-			Result:  []TextEdit{},
-		}, nil
+		return response(msg.ID, []TextEdit{})
 	}
 
 	// Return a single edit that replaces the entire document
-	lines := len(splitLines(text))
+	lines := splitLines(text)
 	lastLineLen := 0
-	if lines > 0 {
-		lastLineLen = len(getLastLine(text))
+	if len(lines) > 0 {
+		lastLineLen = len(lines[len(lines)-1])
 	}
 
-	edit := TextEdit{
+	return response(msg.ID, []TextEdit{{
 		Range: Range{
 			Start: Position{Line: 0, Character: 0},
-			End:   Position{Line: lines, Character: lastLineLen},
+			End:   Position{Line: len(lines), Character: lastLineLen},
 		},
 		NewText: formatted,
-	}
-
-	return RPCMessage{
-		JSONRPC: "2.0",
-		ID:      msg.ID,
-		Result:  []TextEdit{edit},
-	}, nil
+	}})
 }
 
 // splitLines splits text into lines
@@ -272,14 +216,4 @@ func splitLines(text string) []string {
 		lines = append(lines, text[start:])
 	}
 	return lines
-}
-
-// getLastLine returns the last line of text
-func getLastLine(text string) string {
-	for i := len(text) - 1; i >= 0; i-- {
-		if text[i] == '\n' {
-			return text[i+1:]
-		}
-	}
-	return text
 }
