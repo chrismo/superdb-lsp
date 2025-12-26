@@ -193,7 +193,7 @@ func (s *Server) handleFormatting(msg RPCMessage) (interface{}, error) {
 	return response(msg.ID, []TextEdit{{
 		Range: Range{
 			Start: Position{Line: 0, Character: 0},
-			End:   Position{Line: len(lines), Character: lastLineLen},
+			End:   Position{Line: len(lines) - 1, Character: lastLineLen},
 		},
 		NewText: formatted,
 	}})
