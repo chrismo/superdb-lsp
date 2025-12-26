@@ -246,6 +246,52 @@ lsp/
 ### SQL Type Aliases
 `bigint`, `smallint`, `boolean`, `text`, `bytea`
 
+## Roadmap
+
+### Current Status
+
+| Feature | LSP Method | Status |
+|---------|------------|--------|
+| **Diagnostics** | `textDocument/publishDiagnostics` | :white_check_mark: Implemented |
+| **Completion** | `textDocument/completion` | :white_check_mark: Implemented |
+
+### Planned Features
+
+#### Tier 1: Navigation
+| Feature | LSP Method | Description |
+|---------|------------|-------------|
+| **Hover** | `textDocument/hover` | Show docs for functions, types, operators on hover |
+| **Go to Definition** | `textDocument/definition` | Jump to func/type/const declarations |
+| **Document Symbols** | `textDocument/documentSymbol` | File outline showing funcs, types, consts |
+
+#### Tier 2: References & Refactoring
+| Feature | LSP Method | Description |
+|---------|------------|-------------|
+| **Find References** | `textDocument/references` | Find all usages of a symbol |
+| **Rename** | `textDocument/rename` | Rename symbol across file(s) |
+| **Signature Help** | `textDocument/signatureHelp` | Parameter hints while typing `func(` |
+
+#### Tier 3: Formatting & Actions
+| Feature | LSP Method | Description |
+|---------|------------|-------------|
+| **Formatting** | `textDocument/formatting` | Auto-format code |
+| **Code Actions** | `textDocument/codeAction` | Quick fixes, refactors |
+
+#### Tier 4: Advanced
+| Feature | LSP Method | Description |
+|---------|------------|-------------|
+| **Semantic Tokens** | `textDocument/semanticTokens` | Richer highlighting than lexer (e.g., distinguish local vs global) |
+| **Folding Ranges** | `textDocument/foldingRange` | Server-driven code folding |
+| **Inlay Hints** | `textDocument/inlayHint` | Inline type annotations |
+
+### Testing Strategy
+
+LSP features require integration tests with real filesystem (not IntelliJ's in-memory TempFileSystem). Test categories:
+
+1. **Protocol tests** - Verify JSON-RPC request/response handling
+2. **Handler tests** - Unit test each LSP method handler
+3. **Integration tests** - End-to-end with sample `.spq` files
+
 ## License
 
 See the repository root for license information.
