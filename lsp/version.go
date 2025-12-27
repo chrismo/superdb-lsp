@@ -1,6 +1,7 @@
 package main
 
 // Version information - update on each sync with upstream
-// Format: 0.YMMDD where Y=last digit of year, MM=month, DD=day
+// Format: 0.YMMDD.P where Y=last digit of year, MM=month, DD=day, P=patch
 // Based on latest brimdata/super PEG parser commit date
-const Version = "0.51224"
+// Patch number increments for internal changes between syncs
+const Version = "0.51224.1"

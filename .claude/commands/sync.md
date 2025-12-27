@@ -38,11 +38,12 @@ Compare against local files and update if needed:
 
 ### 4. Update Version & Dependencies
 
-Calculate version from the **latest main branch commit date** using format `0.YMMDD`:
+Calculate version from the **latest main branch commit date** using format `0.YMMDD.P`:
 - Y = last digit of year (e.g., 2025 → 5)
 - MM = 2-digit month
 - DD = 2-digit day
-- Example: 2025-12-24 → `0.51224`
+- P = patch number (0 on sync, increments for internal changes)
+- Example: 2025-12-24 → `0.51224.0`
 
 Update version in:
 - `lsp/version.go` - the `Version` constant
