@@ -16,3 +16,15 @@ Add setup instructions to README for:
 - [ ] Zed
 - [ ] Helix
 - [ ] Sublime Text
+
+## Repository Rename
+
+Consider renaming from `superdb-syntaxes` to `superdb-lsp`:
+
+- [ ] Decide on rename (recommendation: `superdb-lsp`)
+  - LSP is the more substantial component
+  - Binary already named `superdb-lsp`
+  - Well-known, searchable term
+  - TextMate bundle can live alongside as supporting material
+- [ ] Update GitHub repo name
+- [ ] Update any external references/links

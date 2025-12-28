@@ -15,7 +15,10 @@
       "Bash(cat:*)",
       "Bash(go get:*)",
       "Bash(go mod tidy:*)",
-      "Skill(code-review:code-review)"
+      "Skill(code-review:code-review)",
+      "Bash(git stash show:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run view:*)"
     ]
   }
 }
