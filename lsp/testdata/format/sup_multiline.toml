@@ -1,0 +1,18 @@
+name = "formats a .sup data file"
+
+[options]
+data_only = true
+pretty = false
+tabSize = 2
+insertSpaces = true
+
+input = '''
+{      ts  :
+2025-12-07T19:03:00.492Z
+     }
+'''
+
+expected = '''
+{ts:2025-12-07T19:03:00.492Z
+}
+'''

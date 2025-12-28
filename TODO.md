@@ -28,3 +28,9 @@ Consider renaming from `superdb-syntaxes` to `superdb-lsp`:
   - TextMate bundle can live alongside as supporting material
 - [ ] Update GitHub repo name
 - [ ] Update any external references/links
+
+## Format 
+
+- [ ] the snapshot tests don't fail if I change the expected. 
+- [ ] added a .sup format test, also not failing
+- [ ] rename Golden -> Snapshot in any of the codebase.
