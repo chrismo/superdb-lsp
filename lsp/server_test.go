@@ -802,7 +802,7 @@ func TestDiagnosticsValidQueries(t *testing.T) {
 		"from test | head 10",
 		"from test | put y := x + 1",
 		"from test | summarize count() by x",
-		"from test | yield {a: 1}",
+		"from test | values {a: 1}",
 	}
 
 	for _, query := range validQueries {
@@ -829,6 +829,186 @@ func TestDiagnosticsInvalidQueries(t *testing.T) {
 			diagnostics := parseAndGetDiagnostics(query)
 			if len(diagnostics) == 0 {
 				t.Errorf("Expected diagnostics for invalid query: %s", query)
+			}
+		})
+	}
+}
+
+// Tests for migration diagnostics
+func TestMigrationDiagnostics(t *testing.T) {
+	tests := []struct {
+		name     string
+		query    string
+		wantCode string
+		wantMsg  string
+	}{
+		{
+			name:     "deprecated yield",
+			query:    "from test | yield {a: 1}",
+			wantCode: "deprecated-yield",
+			wantMsg:  "'yield' is deprecated, use 'values'",
+		},
+		{
+			name:     "deprecated func",
+			query:    "func add(a, b): a + b",
+			wantCode: "deprecated-func",
+			wantMsg:  "'func' is deprecated, use 'fn'",
+		},
+		{
+			name:     "deprecated arrow",
+			query:    "from test => output",
+			wantCode: "deprecated-arrow",
+			wantMsg:  "'=>' is deprecated, use 'into'",
+		},
+		{
+			name:     "deprecated parse_zson",
+			query:    `parse_zson("{a:1}")`,
+			wantCode: "deprecated-parse-zson",
+			wantMsg:  "'parse_zson' is deprecated, use 'parse_sup'",
+		},
+		{
+			name:     "deprecated cast time",
+			query:    `time('2025-01-01T00:00:00Z')`,
+			wantCode: "deprecated-cast-time",
+			wantMsg:  "Function-style cast deprecated, use '::time'",
+		},
+		{
+			name:     "implicit this grep",
+			query:    `grep(/error/)`,
+			wantCode: "implicit-this-grep",
+			wantMsg:  "grep() requires explicit 'this' argument",
+		},
+		{
+			name:     "implicit this is",
+			query:    `is(<string>)`,
+			wantCode: "implicit-this-is",
+			wantMsg:  "is() requires explicit 'this' argument",
+		},
+		{
+			name:     "implicit this nest_dotted",
+			query:    `nest_dotted()`,
+			wantCode: "implicit-this-nest-dotted",
+			wantMsg:  "nest_dotted() requires explicit 'this' argument",
+		},
+		{
+			name:     "removed crop",
+			query:    `crop(this)`,
+			wantCode: "removed-crop",
+			wantMsg:  "'crop()' was removed, use explicit casting",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			diags := getMigrationDiagnostics(tt.query)
+			if len(diags) == 0 {
+				t.Errorf("Expected migration diagnostic for: %s", tt.query)
+				return
+			}
+			found := false
+			for _, d := range diags {
+				if d.Diagnostic.Code == tt.wantCode {
+					found = true
+					if d.Diagnostic.Message != tt.wantMsg {
+						t.Errorf("Got message %q, want %q", d.Diagnostic.Message, tt.wantMsg)
+					}
+					break
+				}
+			}
+			if !found {
+				t.Errorf("Expected diagnostic code %q, got %v", tt.wantCode, diags[0].Diagnostic.Code)
+			}
+		})
+	}
+}
+
+func TestMigrationFixes(t *testing.T) {
+	tests := []struct {
+		name    string
+		query   string
+		wantFix string
+	}{
+		{
+			name:    "fix yield to values",
+			query:   "yield x",
+			wantFix: "values",
+		},
+		{
+			name:    "fix func to fn",
+			query:   "func add(a): a",
+			wantFix: "fn",
+		},
+		{
+			name:    "fix arrow to into",
+			query:   "from test => out",
+			wantFix: "into",
+		},
+		{
+			name:    "fix parse_zson to parse_sup",
+			query:   `parse_zson("{a:1}")`,
+			wantFix: "parse_sup(",
+		},
+		{
+			name:    "fix time cast",
+			query:   `time('2025-01-01')`,
+			wantFix: "'2025-01-01'::time",
+		},
+		{
+			name:    "fix grep with this",
+			query:   `grep(/error/)`,
+			wantFix: "grep('error', this)",
+		},
+		{
+			name:    "fix is with this",
+			query:   `is(<string>)`,
+			wantFix: "is(this, <string>)",
+		},
+		{
+			name:    "fix nest_dotted with this",
+			query:   `nest_dotted()`,
+			wantFix: "nest_dotted(this)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			diags := getMigrationDiagnostics(tt.query)
+			if len(diags) == 0 {
+				t.Errorf("Expected migration diagnostic for: %s", tt.query)
+				return
+			}
+			if diags[0].Fix == nil {
+				t.Errorf("Expected fix for: %s", tt.query)
+				return
+			}
+			if diags[0].Fix.NewText != tt.wantFix {
+				t.Errorf("Got fix %q, want %q", diags[0].Fix.NewText, tt.wantFix)
+			}
+		})
+	}
+}
+
+func TestMigrationNoFalsePositives(t *testing.T) {
+	// These should NOT trigger migration diagnostics
+	queries := []string{
+		"from test | values {a: 1}",            // modern syntax
+		"fn add(a, b): a + b",                  // modern syntax
+		"from test into output",                // modern syntax
+		`parse_sup("{a:1}")`,                   // modern syntax
+		`'2025-01-01'::time`,                   // modern syntax
+		"grep('pattern', this)",                // explicit this
+		"is(this, <string>)",                   // explicit this
+		"nest_dotted(this)",                    // explicit this
+		"https://example.com",                  // URL should not match //
+		"from test -- this is a comment",       // modern comment syntax
+	}
+
+	for _, query := range queries {
+		t.Run(query, func(t *testing.T) {
+			diags := getMigrationDiagnostics(query)
+			if len(diags) > 0 {
+				t.Errorf("Unexpected migration diagnostic for: %s, got code=%s msg=%s",
+					query, diags[0].Diagnostic.Code, diags[0].Diagnostic.Message)
 			}
 		})
 	}
