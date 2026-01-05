@@ -77,6 +77,11 @@ Update `lsp/README.md` with:
 - New "Last synchronized" date
 - Any new keywords/functions added to the reference section
 
+Update `CHANGELOG.md` with a new version entry listing:
+- Added items (keywords, functions, aggregates, types)
+- Changed items (signature changes, behavior changes)
+- Fixed items (bug fixes)
+
 ### 8. Commit & Push
 
 If changes were made:
