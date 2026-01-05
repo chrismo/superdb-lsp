@@ -7,8 +7,8 @@
     "doc": "doc"
   },
   "scripts": {
-    "test": "vscode-tmgrammar-test -g supersql/spq.tmb/Syntaxes/spq.tmLanguage.json test/*.test.spq",
-    "validate": "node -e \"JSON.parse(require('fs').readFileSync('supersql/spq.tmb/Syntaxes/spq.tmLanguage.json'))\" && echo '✓ Grammar JSON valid'",
+    "test": "vscode-tmgrammar-test -g supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json test/*.test.spq",
+    "validate": "node -e \"JSON.parse(require('fs').readFileSync('supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json'))\" && echo '✓ Grammar JSON valid'",
     "ci": "npm run validate && npm test"
   },
   "repository": {

@@ -25,7 +25,7 @@ jobs:
       - name: Validate JSON grammar files
         run: |
           echo "Validating SPQ grammar..."
-          node -e "JSON.parse(require('fs').readFileSync('supersql/spq.tmb/Syntaxes/spq.tmLanguage.json'))"
+          node -e "JSON.parse(require('fs').readFileSync('supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json'))"
           echo "✓ SPQ grammar is valid JSON"
 
       - name: Run grammar tests
@@ -40,15 +40,15 @@ jobs:
 
       - name: Check required files exist
         run: |
-          test -f supersql/spq.tmb/Syntaxes/spq.tmLanguage.json || (echo "Missing SPQ grammar" && exit 1)
-          test -f supersql/spq.tmb/info.plist || (echo "Missing SPQ info.plist" && exit 1)
+          test -f supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json || (echo "Missing SPQ grammar" && exit 1)
+          test -f supersql/spq.tmbundle/info.plist || (echo "Missing SPQ info.plist" && exit 1)
           test -f supersql/sample.spq || (echo "Missing sample file" && exit 1)
           echo "✓ All required files present"
 
       - name: Validate grammar has required fields
         run: |
           node -e "
-            const grammar = JSON.parse(require('fs').readFileSync('supersql/spq.tmb/Syntaxes/spq.tmLanguage.json'));
+            const grammar = JSON.parse(require('fs').readFileSync('supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json'));
             const required = ['scopeName', 'fileTypes', 'patterns'];
             for (const field of required) {
               if (!grammar[field]) {

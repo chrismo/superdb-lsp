@@ -79,7 +79,7 @@ jobs:
       - name: Validate SPQ grammar JSON
         run: |
           # Validate JSON syntax
-          cat supersql/spq.tmb/Syntaxes/spq.tmLanguage.json | python3 -m json.tool > /dev/null
+          cat supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json | python3 -m json.tool > /dev/null
           echo "SPQ grammar JSON is valid"
 
   build-release:

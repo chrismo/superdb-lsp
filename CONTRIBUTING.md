@@ -7,7 +7,7 @@ Thank you for your interest in contributing! This document outlines how to work 
 ```
 superdb-lsp/
 ├── supersql/
-│   ├── spq.tmb/                    # TextMate bundle
+│   ├── spq.tmbundle/                    # TextMate bundle
 │   │   ├── info.plist              # Bundle metadata
 │   │   └── Syntaxes/
 │   │       └── spq.tmLanguage.json # Main grammar file
@@ -31,7 +31,7 @@ First, verify the syntax in the [Super parser](https://github.com/brimdata/super
 
 ### 2. Edit the Grammar
 
-Open `supersql/spq.tmb/Syntaxes/spq.tmLanguage.json` and find the appropriate section:
+Open `supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json` and find the appropriate section:
 
 ```json
 {

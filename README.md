@@ -8,7 +8,7 @@ Syntax highlighting support for [SuperDB](https://github.com/brimdata/super) que
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| **TextMate bundle** | `supersql/spq.tmb/` | Syntax highlighting (regex-based) |
+| **TextMate bundle** | `supersql/spq.tmbundle/` | Syntax highlighting (regex-based) |
 | **LSP server** | `lsp/` | Language server for completions, diagnostics ([details](lsp/README.md)) |
 
 ## Supported Editors
@@ -26,7 +26,7 @@ Syntax highlighting support for [SuperDB](https://github.com/brimdata/super) que
 
 1. Install the [TextMate Bundles](https://plugins.jetbrains.com/plugin/7221-textmate-bundles) plugin
 2. Go to **Settings** → **Editor** → **TextMate Bundles**
-3. Click **+** and select the `supersql/spq.tmb` folder from this repository
+3. Click **+** and select the `supersql/spq.tmbundle` folder from this repository
 4. Click **Apply** and **OK**
 
 **Note:** After making changes to the grammar, you must reload the bundle:
@@ -125,7 +125,7 @@ The TextMate grammar (`spq.tmLanguage.json`) is organized into these scopes:
 
 ### Testing Changes
 
-1. Edit `supersql/spq.tmb/Syntaxes/spq.tmLanguage.json`
+1. Edit `supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json`
 2. Use `supersql/sample.spq` to verify highlighting
 3. Reload in your editor (see installation notes above)
 

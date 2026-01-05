@@ -111,7 +111,7 @@ jobs:
         run: |
           # Package SPQ TextMate bundle
           cd supersql
-          zip -r ../spq-textmate-bundle.zip spq.tmb
+          zip -r ../spq-textmate-bundle.zip spq.tmbundle
           cd ..
 
       - name: Upload TextMate artifacts

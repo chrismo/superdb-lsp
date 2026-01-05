@@ -34,7 +34,7 @@ Review these commits for changes that affect:
 
 Compare against local files and update if needed:
 - `lsp/builtins.go` - add any missing keywords/functions/operators/types, update signatures
-- `supersql/spq.tmb/Syntaxes/spq.tmLanguage.json` - keep TextMate grammar in sync
+- `supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json` - keep TextMate grammar in sync
 
 ### 4. Update Version & Dependencies
 
@@ -47,7 +47,7 @@ Calculate version from the **latest main branch commit date** using format `0.YM
 
 Update version in:
 - `lsp/version.go` - the `Version` constant
-- `supersql/spq.tmb/info.plist` - the version string
+- `supersql/spq.tmbundle/info.plist` - the version string
 
 **Update Go dependency** to the latest main branch commit:
 ```bash
