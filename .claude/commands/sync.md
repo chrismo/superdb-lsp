@@ -45,8 +45,11 @@ Compare against local files and update if needed:
 - Use that version number (e.g., `0.1.0`, `0.2.0`)
 
 Update version in:
-- `lsp/version.go` - the `Version` constant (match upstream) and `SuperCommit` constant (short SHA)
-- `supersql/spq.tmbundle/info.plist` - the version string
+- `lsp/version.go`:
+  - `Version` constant (match upstream, e.g., `0.1.0`)
+  - `LSPPatch` constant (reset to `0` on sync)
+  - `SuperCommit` constant (short SHA)
+- `supersql/spq.tmbundle/info.plist` - the version string (include LSP patch, e.g., `0.1.0.0`)
 
 **Update Go dependency** to the release tag:
 ```bash

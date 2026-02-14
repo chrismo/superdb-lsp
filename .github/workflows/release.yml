@@ -25,9 +25,11 @@ jobs:
       - name: Extract version from version.go
         id: version
         run: |
-          VERSION=$(grep 'Version.*=' lsp/version.go | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          SUPER_VERSION=$(grep '^const Version' lsp/version.go | sed 's/.*"\(.*\)".*/\1/')
+          LSP_PATCH=$(grep '^const LSPPatch' lsp/version.go | sed 's/.*= *\([0-9]*\).*/\1/')
+          VERSION="${SUPER_VERSION}.${LSP_PATCH}"
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
+          echo "Extracted version: $VERSION (super: $SUPER_VERSION, lsp-patch: $LSP_PATCH)"
 
       - name: Check if tag exists
         id: check
