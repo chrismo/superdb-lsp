@@ -1660,7 +1660,7 @@ func TestCodeActionFixAll(t *testing.T) {
 
 	resultBytes, _ := json.Marshal(response.Result)
 	var actions []CodeAction
-	json.Unmarshal(resultBytes, &actions)
+	_ = json.Unmarshal(resultBytes, &actions)
 
 	// Should have individual fixes plus "Fix all"
 	hasFixAll := false

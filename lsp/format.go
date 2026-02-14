@@ -73,7 +73,7 @@ func tokenize(text string) []token {
 		if i+1 < len(text) && ch == '/' && text[i+1] == '*' {
 			start := i
 			i += 2
-			for i+1 < len(text) && !(text[i] == '*' && text[i+1] == '/') {
+			for i+1 < len(text) && (text[i] != '*' || text[i+1] != '/') {
 				i++
 			}
 			if i+1 < len(text) {
