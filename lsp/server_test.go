@@ -1957,6 +1957,187 @@ func TestSupFileComplexData(t *testing.T) {
 	}
 }
 
+// Tests for FullVersion function
+func TestFullVersion(t *testing.T) {
+	version := FullVersion()
+	// Should contain version and commit SHA
+	if !strings.Contains(version, Version) {
+		t.Errorf("FullVersion should contain Version, got %s", version)
+	}
+	if SuperCommit != "" && !strings.Contains(version, "+") {
+		t.Errorf("FullVersion should contain + when SuperCommit is set, got %s", version)
+	}
+}
+
+// Tests for format tokenization edge cases
+func TestFormatHexNumbers(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"0xFF", "0xFF"},
+		{"0x1a2b3c", "0x1a2b3c"},
+		{"0X10", "0X10"},
+	}
+
+	for _, tc := range tests {
+		result := formatDocument(tc.input, FormattingOptions{TabSize: 2, InsertSpaces: true})
+		if !strings.Contains(result, tc.expected) {
+			t.Errorf("formatDocument(%q) should contain %q, got %q", tc.input, tc.expected, result)
+		}
+	}
+}
+
+func TestFormatRegexLiterals(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"grep(/pattern/)", "grep(/pattern/)"},
+		{"where /test/", "where /test/"},
+		{"x | grep(/foo/)", "x | grep(/foo/)"},
+	}
+
+	for _, tc := range tests {
+		result := formatDocument(tc.input, FormattingOptions{TabSize: 2, InsertSpaces: true})
+		// Normalize whitespace for comparison
+		resultNorm := strings.Join(strings.Fields(result), " ")
+		expectedNorm := strings.Join(strings.Fields(tc.expected), " ")
+		if resultNorm != expectedNorm {
+			t.Errorf("formatDocument(%q) = %q, want %q", tc.input, resultNorm, expectedNorm)
+		}
+	}
+}
+
+func TestFormatScientificNotation(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"1e10", "1e10"},
+		{"1.5e-3", "1.5e-3"},
+		{"2E+5", "2E+5"},
+	}
+
+	for _, tc := range tests {
+		result := formatDocument(tc.input, FormattingOptions{TabSize: 2, InsertSpaces: true})
+		if !strings.Contains(result, tc.expected) {
+			t.Errorf("formatDocument(%q) should contain %q, got %q", tc.input, tc.expected, result)
+		}
+	}
+}
+
+func TestFormatFStrings(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`f"hello {name}"`, `f"hello {name}"`},
+		{`f'test'`, `f'test'`},
+		{`r"raw\nstring"`, `r"raw\nstring"`},
+	}
+
+	for _, tc := range tests {
+		result := formatDocument(tc.input, FormattingOptions{TabSize: 2, InsertSpaces: true})
+		if !strings.Contains(result, tc.expected) {
+			t.Errorf("formatDocument(%q) should contain %q, got %q", tc.input, tc.expected, result)
+		}
+	}
+}
+
+func TestFormatSpreadOperator(t *testing.T) {
+	input := "{...record}"
+	result := formatDocument(input, FormattingOptions{TabSize: 2, InsertSpaces: true})
+	if !strings.Contains(result, "...") {
+		t.Errorf("formatDocument(%q) should preserve spread operator, got %q", input, result)
+	}
+}
+
+// Tests for formatHoverContent - all builtin kinds
+func TestFormatHoverContentAllKinds(t *testing.T) {
+	tests := []struct {
+		name     string
+		builtin  Builtin
+		contains []string
+	}{
+		{
+			name:     "function with signature",
+			builtin:  Builtin{Name: "len", Kind: KindFunction, Signature: "len(s: string) -> int64", Doc: "Returns length"},
+			contains: []string{"```spq", "len(s: string) -> int64", "Returns length"},
+		},
+		{
+			name:     "function without signature",
+			builtin:  Builtin{Name: "abs", Kind: KindFunction, Brief: "Absolute value"},
+			contains: []string{"**abs**", "(function)", "Absolute value"},
+		},
+		{
+			name:     "aggregate with signature",
+			builtin:  Builtin{Name: "sum", Kind: KindAggregate, Signature: "sum(x: number) -> number", Doc: "Sum values"},
+			contains: []string{"```spq", "sum(x: number)", "Sum values"},
+		},
+		{
+			name:     "aggregate without signature",
+			builtin:  Builtin{Name: "count", Kind: KindAggregate, Brief: "Count records"},
+			contains: []string{"**count**", "(aggregate)", "Count records"},
+		},
+		{
+			name:     "keyword",
+			builtin:  Builtin{Name: "select", Kind: KindKeyword, Brief: "Select columns"},
+			contains: []string{"**select**", "(keyword)"},
+		},
+		{
+			name:     "operator",
+			builtin:  Builtin{Name: "sort", Kind: KindOperator, Brief: "Sort records"},
+			contains: []string{"**sort**", "(operator)"},
+		},
+		{
+			name:     "type",
+			builtin:  Builtin{Name: "int64", Kind: KindType, Brief: "64-bit integer"},
+			contains: []string{"**int64**", "(type)"},
+		},
+		{
+			name:     "unknown kind",
+			builtin:  Builtin{Name: "unknown", Kind: BuiltinKind(99), Brief: "Unknown thing"},
+			contains: []string{"**unknown**", "Unknown thing"},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := formatHoverContent(&tc.builtin)
+			for _, expected := range tc.contains {
+				if !strings.Contains(result, expected) {
+					t.Errorf("formatHoverContent() should contain %q, got %q", expected, result)
+				}
+			}
+		})
+	}
+}
+
+// Tests for comparePositions
+func TestComparePositions(t *testing.T) {
+	tests := []struct {
+		name     string
+		a, b     Position
+		expected int
+	}{
+		{"same position", Position{Line: 1, Character: 5}, Position{Line: 1, Character: 5}, 0},
+		{"a before b (line)", Position{Line: 0, Character: 5}, Position{Line: 1, Character: 5}, -1},
+		{"a after b (line)", Position{Line: 2, Character: 5}, Position{Line: 1, Character: 5}, 1},
+		{"a before b (char)", Position{Line: 1, Character: 3}, Position{Line: 1, Character: 5}, -1},
+		{"a after b (char)", Position{Line: 1, Character: 7}, Position{Line: 1, Character: 5}, 1},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := comparePositions(tc.a, tc.b)
+			if result != tc.expected {
+				t.Errorf("comparePositions(%v, %v) = %d, want %d", tc.a, tc.b, result, tc.expected)
+			}
+		})
+	}
+}
+
 func TestInitializeWithNewCapabilities(t *testing.T) {
 	h := NewTestHelper()
 
