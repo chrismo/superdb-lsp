@@ -19,12 +19,12 @@ renamed function in brimdata/super.
 
 ## Synchronization
 
-Run `/sync` to synchronize with upstream brimdata/super. This updates:
+Run `/sync` to synchronize with upstream brimdata/super releases. This updates:
 - Keywords, operators, types from PEG grammar
 - Functions from function.go
 - Aggregates from agg.go
-- Go dependency to match synced commit
-- Version number based on latest source file date
+- Go dependency to match release tag
+- Version number to match upstream release
 
 ## Testing
 

@@ -4,13 +4,14 @@ Use WebFetch or gh instead of curl.
 
 ## Do all of this autonomously:
 
-### 1. Fetch Latest Commit & Source Files
+### 1. Fetch Latest Release & Source Files
 
-**Get the latest commit from main branch** (for Go dependency and versioning):
-- `https://api.github.com/repos/brimdata/super/commits?per_page=1`
-- Extract the commit SHA and date
+**Get the latest release** from brimdata/super:
+- `https://api.github.com/repos/brimdata/super/releases/latest`
+- Extract the tag name (e.g., `v0.1.0`) and release date
+- Extract the commit SHA from the release tag
 
-**Fetch these files** from brimdata/super main branch to discover new names:
+**Fetch these files** from the release tag (not main) to discover new names:
 
 | File | Provides | Why |
 |------|----------|-----|
@@ -18,14 +19,15 @@ Use WebFetch or gh instead of curl.
 | `runtime/sam/expr/function/function.go` | Built-in scalar functions | Function names are registered at runtime, not in grammar |
 | `runtime/sam/expr/agg/agg.go` | Aggregate functions | Aggregate names are registered separately from scalar functions |
 
-### 2. Review Recent Changes
+### 2. Review Release Changes
 
-**Get the last sync date** from `lsp/README.md` ("Last synchronized: ...").
+**Get the current synced version** from `lsp/version.go` (the `Version` constant).
 
-**Fetch commits since last sync** to catch signature/behavior changes:
-- `https://api.github.com/repos/brimdata/super/commits?since=<last-sync-date>`
+**Compare releases** to identify what changed:
+- Check release notes at https://github.com/brimdata/super/releases
+- Review commits between the old and new release tags
 
-Review these commits for changes that affect:
+Look for changes that affect:
 - Function/aggregate signatures (return types, parameters)
 - Renamed or removed functions
 - New functions not in the registry files
@@ -46,11 +48,13 @@ Update version in:
 - `lsp/version.go` - the `Version` constant (match upstream) and `SuperCommit` constant (short SHA)
 - `supersql/spq.tmbundle/info.plist` - the version string
 
-**Update Go dependency** to the latest main branch commit:
+**Update Go dependency** to the release tag:
 ```bash
-cd lsp && go get github.com/brimdata/super@<commit-sha> && go mod tidy
+cd lsp && go get github.com/brimdata/super@<release-tag> && go mod tidy
 ```
-This ensures the parser used for diagnostics matches the latest upstream version.
+Example: `go get github.com/brimdata/super@v0.1.0`
+
+This ensures the parser used for diagnostics matches the released upstream version.
 
 ### 5. Test
 
@@ -71,7 +75,7 @@ cd lsp && go build -o superdb-lsp .
 ### 7. Update Docs
 
 Update `lsp/README.md` with:
-- New "Last synchronized" date
+- New "Last synchronized" date (use the release date)
 - Any new keywords/functions added to the reference section
 
 Update `CHANGELOG.md` with a new version entry listing:
