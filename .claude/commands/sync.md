@@ -23,9 +23,9 @@ Use WebFetch or gh instead of curl.
 
 **Get the current synced version** from `lsp/version.go` (the `Version` constant).
 
-**Compare releases** to identify what changed:
-- Check release notes at https://github.com/brimdata/super/releases
-- Review commits between the old and new release tags
+**Review what changed** between releases:
+- Check release notes at https://github.com/brimdata/super/releases for high-level changes
+- Fetch commits between old and new tags: `https://api.github.com/repos/brimdata/super/compare/<old-tag>...<new-tag>`
 
 Look for changes that affect:
 - Function/aggregate signatures (return types, parameters)
