@@ -19,18 +19,47 @@ Use WebFetch or gh instead of curl.
 | `runtime/sam/expr/function/function.go` | Built-in scalar functions | Function names are registered at runtime, not in grammar |
 | `runtime/sam/expr/agg/agg.go` | Aggregate functions | Aggregate names are registered separately from scalar functions |
 
-### 2. Review Release Changes
+### 2. Review Release Changes for Breaking Changes
 
 **Get the current synced version** from `lsp/version.go` (the `Version` constant).
+
+#### 2a. Scan Release Notes & Commits
 
 **Review what changed** between releases:
 - Check release notes at https://github.com/brimdata/super/releases for high-level changes
 - Fetch commits between old and new tags: `https://api.github.com/repos/brimdata/super/compare/<old-tag>...<new-tag>`
 
-Look for changes that affect:
+**Flag commits with breaking-change signals.** Scan each commit message
+for keywords (case-insensitive): `remove`, `rename`, `deprecate`,
+`breaking`, `no longer`, `drop`, `delete`, `replace`, `incompatible`.
+Collect these as potential breaking changes.
+
+Also review commits for:
 - Function/aggregate signatures (return types, parameters)
 - Renamed or removed functions
 - New functions not in the registry files
+- Changes to operators or syntax (especially in parser/grammar files)
+
+Scan release body text for the same breaking-change keywords — release
+notes often summarize breaking changes more clearly than individual
+commits.
+
+#### 2b. Check asdf versions.txt
+
+**Fetch the asdf-superdb versions file** for annotated breaking changes:
+- `https://raw.githubusercontent.com/chrismo/asdf-superdb/main/scripts/versions.txt`
+- Look for comment lines (starting with `#`) near versions newer than
+  the last synced version — these may note known breaking changes
+
+#### 2c. Present Findings
+
+Before proceeding, output a **Breaking Change Review** section listing:
+- Flagged commits (SHA, message, why it was flagged)
+- Flagged release notes
+- Any annotations from versions.txt
+
+If potential breaking changes are found, note them for the CHANGELOG
+and continue with the sync. The human will review the report at the end.
 
 ### 3. Compare & Update
 
@@ -81,10 +110,13 @@ Update `lsp/README.md` with:
 - New "Last synchronized" date (use the release date)
 - Any new keywords/functions added to the reference section
 
-Update `CHANGELOG.md` with a new version entry listing:
-- Added items (keywords, functions, aggregates, types)
-- Changed items (signature changes, behavior changes)
-- Fixed items (bug fixes)
+Update `CHANGELOG.md` with a new version entry. Use these section headers:
+- `### Added` — new keywords, functions, aggregates, types
+- `### Changed` — non-breaking signature or behavior changes
+- `### Breaking` — breaking changes (removed/renamed operators,
+  functions, syntax changes that break existing queries). The MCP
+  sync downstream scans for this header specifically.
+- `### Fixed` — bug fixes
 
 ### 8. Commit & Push
 
@@ -97,9 +129,20 @@ If changes were made:
 ### 9. Report
 
 Summarize what was done:
-- New version number
+
+**Version**: new version number and commit hash
+
+**Breaking Change Summary** (most important — put this first):
+- List each potential breaking change found in step 2
+- For each: commit SHA, one-line description, and affected area
+  (syntax, function, operator, type, etc.)
+- If none found, say "No breaking changes detected"
+
+**Changes**:
 - Number of new items added (by category)
 - Any signature changes
+- Items removed or renamed
+
+**Build**:
 - Test results
 - Binary size
-- Commit hash
