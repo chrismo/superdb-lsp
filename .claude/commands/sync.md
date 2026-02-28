@@ -61,13 +61,41 @@ Before proceeding, output a **Breaking Change Review** section listing:
 If potential breaking changes are found, note them for the CHANGELOG
 and continue with the sync. The human will review the report at the end.
 
-### 3. Compare & Update
+### 3. Update Go Dependency
 
-Compare against local files and update if needed:
-- `lsp/builtins.go` - add any missing keywords/functions/operators/types, update signatures
+Update the Go dependency to the release tag **before** running `go generate`:
+```bash
+cd lsp && go get github.com/brimdata/super@<release-tag> && go mod tidy
+```
+Example: `go get github.com/brimdata/super@v0.1.0`
+
+This ensures the module cache has the correct upstream source for code generation.
+
+**Note:** If the Go module proxy hasn't indexed the tag yet, use the commit SHA:
+```bash
+go get github.com/brimdata/super@<commit-sha>
+```
+
+### 4. Generate Grammar & Compare
+
+Run `go generate` to auto-generate keywords, operators, and types from the PEG grammar:
+```bash
+cd lsp && go generate ./...
+```
+
+This:
+- Regenerates `lsp/grammar_generated.go` from `compiler/parser/parser.peg`
+- Prints a diff report showing NEW/REMOVED functions and aggregates
+
+Review the diff report output. For any new or removed functions/aggregates:
+- Update `lsp/builtins.go` — add entries with Brief, Doc, Signature, Parameters for new functions/aggregates
+- Remove entries for deleted functions/aggregates
+- Update signatures for arity changes
+
+Also update:
 - `supersql/spq.tmbundle/Syntaxes/spq.tmLanguage.json` - keep TextMate grammar in sync
 
-### 4. Update Version & Dependencies
+### 5. Update Version
 
 **Get the latest release version** from brimdata/super:
 - Check https://github.com/brimdata/super/releases for the latest release tag
@@ -80,15 +108,7 @@ Update version in:
   - `SuperCommit` constant (short SHA)
 - `supersql/spq.tmbundle/info.plist` - the version string (include LSP patch, e.g., `0.1.0.0`)
 
-**Update Go dependency** to the release tag:
-```bash
-cd lsp && go get github.com/brimdata/super@<release-tag> && go mod tidy
-```
-Example: `go get github.com/brimdata/super@v0.1.0`
-
-This ensures the parser used for diagnostics matches the released upstream version.
-
-### 5. Test
+### 6. Test
 
 Run the full test suite:
 ```bash
@@ -96,7 +116,7 @@ cd lsp && go build -v && go test -v
 ```
 Fix any test failures.
 
-### 6. Build
+### 7. Build
 
 Build the binary and verify it works:
 ```bash
@@ -104,7 +124,7 @@ cd lsp && go build -o superdb-lsp .
 ./superdb-lsp --version
 ```
 
-### 7. Update Docs
+### 8. Update Docs
 
 Update `lsp/README.md` with:
 - New "Last synchronized" date (use the release date)
@@ -118,7 +138,7 @@ Update `CHANGELOG.md` with a new version entry. Use these section headers:
   sync downstream scans for this header specifically.
 - `### Fixed` — bug fixes
 
-### 8. Commit & Push
+### 9. Commit & Push
 
 If changes were made:
 - Stage all changes
@@ -126,7 +146,7 @@ If changes were made:
 - Include the new version number in the commit message
 - Push to the current branch
 
-### 9. Report
+### 10. Report
 
 Summarize what was done:
 

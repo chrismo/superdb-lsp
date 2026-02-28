@@ -1,8 +1,10 @@
 package main
 
-// builtins.go - Unified registry of SuperSQL language elements
-// This is the single source of truth for all keywords, operators, functions,
-// aggregates, and types. Used by completion, hover, and signature help.
+//go:generate sh -c "cd ../scripts/gen-builtins && go run . $PWD"
+
+// builtins.go - Registry of SuperSQL language elements
+// Keywords, operators, and types are auto-generated in grammar_generated.go.
+// Functions and aggregates (with docs/signatures) are maintained here.
 
 // BuiltinKind categorizes language elements
 type BuiltinKind int
@@ -70,13 +72,18 @@ func buildRegistry() *Registry {
 		byName: make(map[string]*Builtin),
 		byKind: make(map[BuiltinKind][]*Builtin),
 	}
-
+	// Generated: keywords, types, operators
+	for i := range grammarBuiltins {
+		b := &grammarBuiltins[i]
+		r.byName[toLower(b.Name)] = b
+		r.byKind[b.Kind] = append(r.byKind[b.Kind], b)
+	}
+	// Manual: functions, aggregates (with docs/signatures)
 	for i := range allBuiltins {
 		b := &allBuiltins[i]
 		r.byName[toLower(b.Name)] = b
 		r.byKind[b.Kind] = append(r.byKind[b.Kind], b)
 	}
-
 	return r
 }
 
@@ -93,131 +100,10 @@ func toLower(s string) string {
 	return string(b)
 }
 
-// allBuiltins is the master list of all language elements
+// allBuiltins contains functions and aggregates with human-written
+// docs and signatures. Keywords, operators, and types are in
+// grammar_generated.go (auto-generated from the PEG grammar).
 var allBuiltins = []Builtin{
-	// =========================================================================
-	// KEYWORDS
-	// =========================================================================
-
-	// Core keywords
-	{Name: "const", Kind: KindKeyword, Brief: "Declare a constant"},
-	{Name: "file", Kind: KindKeyword, Brief: "File source"},
-	{Name: "from", Kind: KindKeyword, Brief: "Data source"},
-	{Name: "func", Kind: KindKeyword, Brief: "Define a function"},
-	{Name: "op", Kind: KindKeyword, Brief: "Define an operator"},
-	{Name: "this", Kind: KindKeyword, Brief: "Current value reference"},
-	{Name: "type", Kind: KindKeyword, Brief: "Type definition"},
-	{Name: "let", Kind: KindKeyword, Brief: "Variable binding"},
-
-	// SQL keywords
-	{Name: "select", Kind: KindKeyword, Brief: "Select fields"},
-	{Name: "as", Kind: KindKeyword, Brief: "Alias"},
-	{Name: "by", Kind: KindKeyword, Brief: "Group by field"},
-	{Name: "where", Kind: KindKeyword, Brief: "Filter condition"},
-	{Name: "group", Kind: KindKeyword, Brief: "Group records"},
-	{Name: "having", Kind: KindKeyword, Brief: "Filter groups"},
-	{Name: "order", Kind: KindKeyword, Brief: "Order results"},
-	{Name: "limit", Kind: KindKeyword, Brief: "Limit results"},
-	{Name: "offset", Kind: KindKeyword, Brief: "Skip results"},
-	{Name: "with", Kind: KindKeyword, Brief: "Common table expression"},
-	{Name: "distinct", Kind: KindKeyword, Brief: "Distinct values"},
-	{Name: "all", Kind: KindKeyword, Brief: "All values"},
-
-	// Join keywords
-	{Name: "join", Kind: KindKeyword, Brief: "Join data sources"},
-	{Name: "inner", Kind: KindKeyword, Brief: "Inner join"},
-	{Name: "left", Kind: KindKeyword, Brief: "Left join"},
-	{Name: "right", Kind: KindKeyword, Brief: "Right join"},
-	{Name: "outer", Kind: KindKeyword, Brief: "Outer join"},
-	{Name: "full", Kind: KindKeyword, Brief: "Full join"},
-	{Name: "cross", Kind: KindKeyword, Brief: "Cross join"},
-	{Name: "anti", Kind: KindKeyword, Brief: "Anti join"},
-	{Name: "on", Kind: KindKeyword, Brief: "Join condition"},
-	{Name: "using", Kind: KindKeyword, Brief: "Join using columns"},
-
-	// Logic keywords
-	{Name: "and", Kind: KindKeyword, Brief: "Logical AND"},
-	{Name: "or", Kind: KindKeyword, Brief: "Logical OR"},
-	{Name: "not", Kind: KindKeyword, Brief: "Logical NOT"},
-	{Name: "in", Kind: KindKeyword, Brief: "In set"},
-	{Name: "like", Kind: KindKeyword, Brief: "Pattern match"},
-	{Name: "is", Kind: KindKeyword, Brief: "Type check"},
-	{Name: "between", Kind: KindKeyword, Brief: "Range check"},
-
-	// Control flow
-	{Name: "case", Kind: KindKeyword, Brief: "Case expression"},
-	{Name: "when", Kind: KindKeyword, Brief: "Case condition"},
-	{Name: "then", Kind: KindKeyword, Brief: "Case result"},
-	{Name: "else", Kind: KindKeyword, Brief: "Default case"},
-	{Name: "end", Kind: KindKeyword, Brief: "End case"},
-	{Name: "default", Kind: KindKeyword, Brief: "Default branch"},
-
-	// Literals
-	{Name: "true", Kind: KindKeyword, Brief: "Boolean true"},
-	{Name: "false", Kind: KindKeyword, Brief: "Boolean false"},
-	{Name: "null", Kind: KindKeyword, Brief: "Null value"},
-
-	// Other keywords
-	{Name: "aggregate", Kind: KindKeyword, Brief: "Aggregate expression"},
-	{Name: "nulls", Kind: KindKeyword, Brief: "Null ordering"},
-	{Name: "first", Kind: KindKeyword, Brief: "First value"},
-	{Name: "last", Kind: KindKeyword, Brief: "Last value"},
-	{Name: "asc", Kind: KindKeyword, Brief: "Sort ascending"},
-	{Name: "desc", Kind: KindKeyword, Brief: "Sort descending"},
-	{Name: "at", Kind: KindKeyword, Brief: "At location/time"},
-	{Name: "call", Kind: KindKeyword, Brief: "Function call"},
-	{Name: "cast", Kind: KindKeyword, Brief: "Type cast"},
-	{Name: "enum", Kind: KindKeyword, Brief: "Enumeration type"},
-	{Name: "error", Kind: KindKeyword, Brief: "Error value"},
-	{Name: "exists", Kind: KindKeyword, Brief: "SQL EXISTS"},
-	{Name: "extract", Kind: KindKeyword, Brief: "Extract component"},
-	{Name: "fn", Kind: KindKeyword, Brief: "Function shorthand"},
-	{Name: "for", Kind: KindKeyword, Brief: "For iteration"},
-	{Name: "lambda", Kind: KindKeyword, Brief: "Lambda expression"},
-	{Name: "materialized", Kind: KindKeyword, Brief: "Materialized view"},
-	{Name: "ordinality", Kind: KindKeyword, Brief: "WITH ORDINALITY"},
-	{Name: "pragma", Kind: KindKeyword, Brief: "Compiler directive"},
-	{Name: "recursive", Kind: KindKeyword, Brief: "Recursive CTE"},
-	{Name: "shape", Kind: KindKeyword, Brief: "Value shape"},
-	{Name: "shapes", Kind: KindKeyword, Brief: "Get shapes"},
-	{Name: "substring", Kind: KindKeyword, Brief: "Substring function"},
-	{Name: "union", Kind: KindKeyword, Brief: "SQL UNION"},
-	{Name: "value", Kind: KindKeyword, Brief: "Value keyword"},
-	{Name: "filter", Kind: KindKeyword, Brief: "Filter expression"},
-	{Name: "map", Kind: KindKeyword, Brief: "Map type constructor"},
-
-	// =========================================================================
-	// OPERATORS (pipeline operators)
-	// =========================================================================
-
-	{Name: "assert", Kind: KindOperator, Brief: "Assert condition"},
-	{Name: "cut", Kind: KindOperator, Brief: "Select and reorder fields"},
-	{Name: "debug", Kind: KindOperator, Brief: "Debug output"},
-	{Name: "drop", Kind: KindOperator, Brief: "Remove fields from records"},
-	{Name: "explode", Kind: KindOperator, Brief: "Explode array into records"},
-	{Name: "fork", Kind: KindOperator, Brief: "Fork the data flow"},
-	{Name: "fuse", Kind: KindOperator, Brief: "Fuse schemas together"},
-	{Name: "head", Kind: KindOperator, Brief: "Take first N records"},
-	{Name: "load", Kind: KindOperator, Brief: "Load data into pool"},
-	{Name: "merge", Kind: KindOperator, Brief: "Merge sorted streams"},
-	{Name: "output", Kind: KindOperator, Brief: "Output to destination"},
-	{Name: "over", Kind: KindOperator, Brief: "Iterate over values"},
-	{Name: "pass", Kind: KindOperator, Brief: "Pass through unchanged"},
-	{Name: "put", Kind: KindOperator, Brief: "Add/update fields"},
-	{Name: "rename", Kind: KindOperator, Brief: "Rename fields"},
-	{Name: "sample", Kind: KindOperator, Brief: "Sample random records"},
-	{Name: "search", Kind: KindOperator, Brief: "Search expression"},
-	{Name: "skip", Kind: KindOperator, Brief: "Skip N records"},
-	{Name: "sort", Kind: KindOperator, Brief: "Sort records"},
-	{Name: "summarize", Kind: KindOperator, Brief: "Aggregate data"},
-	{Name: "switch", Kind: KindOperator, Brief: "Conditional branching"},
-	{Name: "tail", Kind: KindOperator, Brief: "Take last N records"},
-	{Name: "top", Kind: KindOperator, Brief: "Top N by field"},
-	{Name: "uniq", Kind: KindOperator, Brief: "Remove duplicates"},
-	{Name: "unnest", Kind: KindOperator, Brief: "Unnest nested values"},
-	{Name: "values", Kind: KindOperator, Brief: "Extract values"},
-	{Name: "yield", Kind: KindOperator, Brief: "Output values"},
-
 	// =========================================================================
 	// FUNCTIONS (scalar functions)
 	// =========================================================================
@@ -637,70 +523,5 @@ var allBuiltins = []Builtin{
 		Signature: "last(value: any) -> any",
 		Parameters: []ParamDef{{Name: "value", Doc: "Values to select from"}},
 	},
-
-	// =========================================================================
-	// TYPES
-	// =========================================================================
-
-	// Unsigned integers
-	{Name: "uint8", Kind: KindType, Brief: "8-bit unsigned integer"},
-	{Name: "uint16", Kind: KindType, Brief: "16-bit unsigned integer"},
-	{Name: "uint32", Kind: KindType, Brief: "32-bit unsigned integer"},
-	{Name: "uint64", Kind: KindType, Brief: "64-bit unsigned integer"},
-	{Name: "uint128", Kind: KindType, Brief: "128-bit unsigned integer"},
-	{Name: "uint256", Kind: KindType, Brief: "256-bit unsigned integer"},
-
-	// Signed integers
-	{Name: "int8", Kind: KindType, Brief: "8-bit signed integer"},
-	{Name: "int16", Kind: KindType, Brief: "16-bit signed integer"},
-	{Name: "int32", Kind: KindType, Brief: "32-bit signed integer"},
-	{Name: "int64", Kind: KindType, Brief: "64-bit signed integer"},
-	{Name: "int128", Kind: KindType, Brief: "128-bit signed integer"},
-	{Name: "int256", Kind: KindType, Brief: "256-bit signed integer"},
-
-	// Floats
-	{Name: "float16", Kind: KindType, Brief: "16-bit float"},
-	{Name: "float32", Kind: KindType, Brief: "32-bit float"},
-	{Name: "float64", Kind: KindType, Brief: "64-bit float"},
-	{Name: "float128", Kind: KindType, Brief: "128-bit float"},
-	{Name: "float256", Kind: KindType, Brief: "256-bit float"},
-
-	// Decimals
-	{Name: "decimal32", Kind: KindType, Brief: "32-bit decimal"},
-	{Name: "decimal64", Kind: KindType, Brief: "64-bit decimal"},
-	{Name: "decimal128", Kind: KindType, Brief: "128-bit decimal"},
-	{Name: "decimal256", Kind: KindType, Brief: "256-bit decimal"},
-
-	// Time types
-	{Name: "duration", Kind: KindType, Brief: "Duration type"},
-	{Name: "time", Kind: KindType, Brief: "Timestamp type"},
-	{Name: "date", Kind: KindType, Brief: "Date type"},
-	{Name: "timestamp", Kind: KindType, Brief: "Timestamp type (alias)"},
-
-	// Other types
-	{Name: "bool", Kind: KindType, Brief: "Boolean type"},
-	{Name: "bytes", Kind: KindType, Brief: "Byte array type"},
-	{Name: "string", Kind: KindType, Brief: "String type"},
-	{Name: "ip", Kind: KindType, Brief: "IP address type"},
-	{Name: "net", Kind: KindType, Brief: "Network CIDR type"},
-	{Name: "type", Kind: KindType, Brief: "Type type"},
-	{Name: "null", Kind: KindType, Brief: "Null type"},
-
-	// SQL type aliases
-	{Name: "bigint", Kind: KindType, Brief: "64-bit integer (alias for int64)"},
-	{Name: "smallint", Kind: KindType, Brief: "16-bit integer (alias for int16)"},
-	{Name: "integer", Kind: KindType, Brief: "32-bit integer (alias for int32)"},
-	{Name: "int", Kind: KindType, Brief: "32-bit integer (alias for int32)"},
-	{Name: "boolean", Kind: KindType, Brief: "Boolean (alias for bool)"},
-	{Name: "text", Kind: KindType, Brief: "Text (alias for string)"},
-	{Name: "varchar", Kind: KindType, Brief: "Variable character (alias for string)"},
-	{Name: "char", Kind: KindType, Brief: "Character (alias for string)"},
-	{Name: "bytea", Kind: KindType, Brief: "Byte array (alias for bytes)"},
-	{Name: "real", Kind: KindType, Brief: "32-bit float (alias for float32)"},
-	{Name: "float", Kind: KindType, Brief: "64-bit float (alias for float64)"},
-	{Name: "double", Kind: KindType, Brief: "64-bit float (alias for float64)"},
-	{Name: "inet", Kind: KindType, Brief: "IP address (alias for ip)"},
-	{Name: "cidr", Kind: KindType, Brief: "Network CIDR (alias for net)"},
-	{Name: "interval", Kind: KindType, Brief: "Time interval (alias for duration)"},
 }
 

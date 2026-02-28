@@ -614,7 +614,7 @@ func TestCompletionPrefixMatching(t *testing.T) {
 			text:     "from test | ",
 			position: Position{Line: 0, Character: 12},
 			prefix:   "",
-			expected: []string{"sort", "where", "count", "yield"},
+			expected: []string{"sort", "where", "count", "values"},
 		},
 	}
 
@@ -673,9 +673,9 @@ func TestCompletionOperators(t *testing.T) {
 	// Test that all operators are available
 	ops := []string{
 		"assert", "cut", "drop", "fork", "fuse",
-		"head", "join", "merge", "over", "pass", "put",
-		"rename", "sort", "summarize", "tail", "uniq", "where", "yield",
-		"debug", "explode", "output", "skip", "unnest", "values",
+		"head", "join", "merge", "pass", "put",
+		"rename", "sort", "tail", "uniq", "where",
+		"debug", "output", "skip", "unnest", "values",
 	}
 
 	items := getCompletions("", Position{Line: 0, Character: 0})
@@ -748,8 +748,8 @@ func TestCompletionAllTypes(t *testing.T) {
 		// Core types
 		"int64", "uint64", "float64", "string", "bool", "bytes",
 		"time", "duration", "ip", "net", "null", "type",
-		// New SQL type aliases
-		"date", "timestamp", "bigint", "smallint", "boolean", "text", "bytea",
+		// SQL type aliases
+		"bigint", "smallint", "boolean", "text", "bytea",
 	}
 
 	items := getCompletions("cast(x, ", Position{Line: 0, Character: 8})
