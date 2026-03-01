@@ -80,6 +80,9 @@ jobs:
           go-version: '1.22'
           cache-dependency-path: lsp/go.sum
 
+      - name: Clone brimdata/super dependency
+        run: make deps
+
       - name: Build LSP binary
         working-directory: lsp
         env:
