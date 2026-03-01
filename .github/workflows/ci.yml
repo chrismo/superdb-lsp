@@ -23,8 +23,9 @@ jobs:
           go-version: '1.22'
           cache-dependency-path: lsp/go.sum
 
-      - name: Download dependencies
-        run: go mod download
+      - name: Clone brimdata/super dependency
+        run: make deps
+        working-directory: .
 
       - name: Build
         run: go build -v ./...
@@ -54,6 +55,10 @@ jobs:
         with:
           go-version: '1.22'
           cache-dependency-path: lsp/go.sum
+
+      - name: Clone brimdata/super dependency
+        run: make deps
+        working-directory: .
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v4
@@ -104,6 +109,10 @@ jobs:
         with:
           go-version: '1.22'
           cache-dependency-path: lsp/go.sum
+
+      - name: Clone brimdata/super dependency
+        run: make deps
+        working-directory: .
 
       - name: Build
         env:
