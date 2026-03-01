@@ -4,7 +4,7 @@ import "fmt"
 
 // Version follows brimdata/super release versions (major.minor.patch)
 // See: https://github.com/brimdata/super/releases
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 // LSPPatch is incremented for LSP-specific bug fixes between syncs
 // Reset to 0 when syncing to a new upstream version
@@ -12,7 +12,7 @@ const LSPPatch = 0
 
 // SuperCommit is the brimdata/super commit SHA this version is synced to
 // Updated by /sync command
-const SuperCommit = "e8764da"
+const SuperCommit = "02986c2"
 
 // FullVersion returns the complete version string
 // Format: <super-version>.<lsp-patch>+<commit-sha>
