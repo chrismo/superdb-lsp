@@ -2176,3 +2176,606 @@ func TestInitializeWithNewCapabilities(t *testing.T) {
 		t.Error("Expected DocumentFormattingProvider to be true")
 	}
 }
+
+// === Gap #1: Handler error paths (malformed params) ===
+
+func TestHandlerMalformedParams(t *testing.T) {
+	tests := []struct {
+		name   string
+		method string
+		hasID  bool
+	}{
+		{"initialize", "initialize", true},
+		{"didOpen", "textDocument/didOpen", false},
+		{"didChange", "textDocument/didChange", false},
+		{"didClose", "textDocument/didClose", false},
+		{"completion", "textDocument/completion", true},
+		{"hover", "textDocument/hover", true},
+		{"signatureHelp", "textDocument/signatureHelp", true},
+		{"formatting", "textDocument/formatting", true},
+		{"codeAction", "textDocument/codeAction", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := NewServer()
+			// Build a raw JSON message with malformed params directly
+			var idField string
+			if tt.hasID {
+				idField = `"id":1,`
+			}
+			raw := json.RawMessage(fmt.Sprintf(
+				`{"jsonrpc":"2.0",%s"method":"%s","params":"not an object"}`,
+				idField, tt.method,
+			))
+
+			result, err := s.handleMessage(raw)
+			// All handlers should return an error for malformed params
+			if err == nil && result != nil {
+				t.Error("Expected error for malformed params, got success")
+			}
+		})
+	}
+}
+
+// === Gap #2: Document-not-found paths ===
+
+func TestCompletionDocumentNotFound(t *testing.T) {
+	h := NewTestHelper()
+	_, err := h.ProcessRequest(1, "initialize", InitializeParams{ProcessID: 1})
+	if err != nil {
+		t.Fatalf("Initialize failed: %v", err)
+	}
+
+	// Request completion for a document that was never opened
+	compParams := CompletionParams{
+		TextDocument: TextDocumentIdentifier{URI: "file:///nonexistent.spq"},
+		Position:     Position{Line: 0, Character: 0},
+	}
+
+	response, err := h.ProcessRequest(2, "textDocument/completion", compParams)
+	if err != nil {
+		t.Fatalf("Completion failed: %v", err)
+	}
+	if response == nil {
+		t.Fatal("Expected response, got nil")
+	}
+
+	resultBytes, _ := json.Marshal(response.Result)
+	var completions CompletionList
+	if err := json.Unmarshal(resultBytes, &completions); err != nil {
+		t.Fatalf("Unmarshal completions: %v", err)
+	}
+
+	// Should return empty completion list, not crash
+	if len(completions.Items) != 0 {
+		t.Errorf("Expected empty completions for unknown doc, got %d items", len(completions.Items))
+	}
+}
+
+func TestHoverDocumentNotFound(t *testing.T) {
+	h := NewTestHelper()
+	_, err := h.ProcessRequest(1, "initialize", InitializeParams{ProcessID: 1})
+	if err != nil {
+		t.Fatalf("Initialize failed: %v", err)
+	}
+
+	hoverParams := HoverParams{
+		TextDocument: TextDocumentIdentifier{URI: "file:///nonexistent.spq"},
+		Position:     Position{Line: 0, Character: 0},
+	}
+
+	response, err := h.ProcessRequest(2, "textDocument/hover", hoverParams)
+	if err != nil {
+		t.Fatalf("Hover failed: %v", err)
+	}
+	if response == nil {
+		t.Fatal("Expected response, got nil")
+	}
+
+	// Result should be null (nil hover)
+	if response.Result != nil {
+		t.Errorf("Expected nil result for unknown doc, got %v", response.Result)
+	}
+}
+
+func TestSignatureHelpDocumentNotFound(t *testing.T) {
+	h := NewTestHelper()
+	_, err := h.ProcessRequest(1, "initialize", InitializeParams{ProcessID: 1})
+	if err != nil {
+		t.Fatalf("Initialize failed: %v", err)
+	}
+
+	sigParams := SignatureHelpParams{
+		TextDocument: TextDocumentIdentifier{URI: "file:///nonexistent.spq"},
+		Position:     Position{Line: 0, Character: 0},
+	}
+
+	response, err := h.ProcessRequest(2, "textDocument/signatureHelp", sigParams)
+	if err != nil {
+		t.Fatalf("SignatureHelp failed: %v", err)
+	}
+	if response == nil {
+		t.Fatal("Expected response, got nil")
+	}
+
+	if response.Result != nil {
+		t.Errorf("Expected nil result for unknown doc, got %v", response.Result)
+	}
+}
+
+func TestFormattingDocumentNotFound(t *testing.T) {
+	h := NewTestHelper()
+	_, err := h.ProcessRequest(1, "initialize", InitializeParams{ProcessID: 1})
+	if err != nil {
+		t.Fatalf("Initialize failed: %v", err)
+	}
+
+	formatParams := DocumentFormattingParams{
+		TextDocument: TextDocumentIdentifier{URI: "file:///nonexistent.spq"},
+		Options:      FormattingOptions{TabSize: 2, InsertSpaces: true},
+	}
+
+	response, err := h.ProcessRequest(2, "textDocument/formatting", formatParams)
+	if err != nil {
+		t.Fatalf("Formatting failed: %v", err)
+	}
+	if response == nil {
+		t.Fatal("Expected response, got nil")
+	}
+
+	resultBytes, _ := json.Marshal(response.Result)
+	var edits []TextEdit
+	if err := json.Unmarshal(resultBytes, &edits); err != nil {
+		t.Fatalf("Unmarshal edits: %v", err)
+	}
+
+	if len(edits) != 0 {
+		t.Errorf("Expected empty edits for unknown doc, got %d", len(edits))
+	}
+}
+
+func TestCodeActionDocumentNotFound(t *testing.T) {
+	h := NewTestHelper()
+	_, err := h.ProcessRequest(1, "initialize", InitializeParams{ProcessID: 1})
+	if err != nil {
+		t.Fatalf("Initialize failed: %v", err)
+	}
+
+	codeActionParams := CodeActionParams{
+		TextDocument: TextDocumentIdentifier{URI: "file:///nonexistent.spq"},
+		Range:        Range{Start: Position{}, End: Position{}},
+		Context:      CodeActionContext{Diagnostics: []Diagnostic{}},
+	}
+
+	response, err := h.ProcessRequest(2, "textDocument/codeAction", codeActionParams)
+	if err != nil {
+		t.Fatalf("CodeAction failed: %v", err)
+	}
+	if response == nil {
+		t.Fatal("Expected response, got nil")
+	}
+
+	resultBytes, _ := json.Marshal(response.Result)
+	var actions []CodeAction
+	if err := json.Unmarshal(resultBytes, &actions); err != nil {
+		t.Fatalf("Unmarshal actions: %v", err)
+	}
+
+	if len(actions) != 0 {
+		t.Errorf("Expected empty actions for unknown doc, got %d", len(actions))
+	}
+}
+
+// === Gap #3: Format tokenizer gaps ===
+
+func TestFormatBlockComments(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		contains string
+	}{
+		{
+			name:     "single line block comment",
+			input:    "/* comment */ from test",
+			contains: "/* comment */",
+		},
+		{
+			name:     "multi-line block comment",
+			input:    "/* line1\nline2 */ from test",
+			contains: "/* line1\nline2 */",
+		},
+		{
+			name:     "block comment between tokens",
+			input:    "from /* inline */ test",
+			contains: "/* inline */",
+		},
+		{
+			name:     "unclosed block comment preserves content",
+			input:    "from test /* unclosed",
+			contains: "/* unclose",
+		},
+	}
+
+	opts := FormattingOptions{TabSize: 2, InsertSpaces: true}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := formatDocument(tc.input, opts)
+			if !strings.Contains(result, tc.contains) {
+				t.Errorf("Expected result to contain %q, got %q", tc.contains, result)
+			}
+		})
+	}
+}
+
+func TestFormatBacktickIdentifiers(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		contains string
+	}{
+		{
+			name:     "simple backtick identifier",
+			input:    "from test | put `my field` := 1",
+			contains: "`my field`",
+		},
+		{
+			name:     "backtick with special chars",
+			input:    "from test | put `a.b.c` := x",
+			contains: "`a.b.c`",
+		},
+		{
+			name:     "unclosed backtick",
+			input:    "from test | put `unclosed",
+			contains: "`unclosed",
+		},
+	}
+
+	opts := FormattingOptions{TabSize: 2, InsertSpaces: true}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := formatDocument(tc.input, opts)
+			if !strings.Contains(result, tc.contains) {
+				t.Errorf("Expected result to contain %q, got %q", tc.contains, result)
+			}
+		})
+	}
+}
+
+func TestFormatTabIndentation(t *testing.T) {
+	input := "from test|count()"
+	opts := FormattingOptions{
+		TabSize:      4,
+		InsertSpaces: false, // Use tabs
+	}
+
+	result := formatDocument(input, opts)
+
+	// Should contain tab-based indentation (not spaces)
+	// The pipe should be on its own line
+	if !strings.Contains(result, "\n") {
+		t.Errorf("Expected pipe on new line, got %q", result)
+	}
+	// InsertSpaces=false means tabs are used for indentation
+	if strings.Contains(result, "    |") {
+		t.Errorf("Expected tab indentation, not spaces: %q", result)
+	}
+}
+
+func TestFormatArrayLiterals(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		contains string
+	}{
+		{
+			name:     "array brackets preserved",
+			input:    "[1, 2, 3]",
+			contains: "[1,",
+		},
+		{
+			name:     "array in expression",
+			input:    "from test | put x := [1, 2, 3]",
+			contains: "[1,",
+		},
+		{
+			name:     "empty array",
+			input:    "from test | put x := []",
+			contains: "[]",
+		},
+	}
+
+	opts := FormattingOptions{TabSize: 2, InsertSpaces: true}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := formatDocument(tc.input, opts)
+			if !strings.Contains(result, tc.contains) {
+				t.Errorf("Expected result to contain %q, got %q", tc.contains, result)
+			}
+		})
+	}
+}
+
+func TestFormatSemicolons(t *testing.T) {
+	input := "from test; count()"
+	opts := FormattingOptions{TabSize: 2, InsertSpaces: true}
+
+	result := formatDocument(input, opts)
+	if !strings.Contains(result, ";") {
+		t.Errorf("Expected semicolon preserved, got %q", result)
+	}
+}
+
+// === Gap #4: extractDataErrorPosition coverage ===
+
+func TestExtractDataErrorPosition(t *testing.T) {
+	tests := []struct {
+		name         string
+		errStr       string
+		expectedLine int
+		expectedCol  int
+	}{
+		{
+			name:         "verbose format",
+			errStr:       "parse error at line 3, column 10: unexpected token",
+			expectedLine: 2,
+			expectedCol:  9,
+		},
+		{
+			name:         "standard format",
+			errStr:       "line 5, column 20: something wrong",
+			expectedLine: 4,
+			expectedCol:  19,
+		},
+		{
+			name:         "compact format",
+			errStr:       "line 2:15: unexpected char",
+			expectedLine: 1,
+			expectedCol:  14,
+		},
+		{
+			name:         "minimal format",
+			errStr:       "7:3: missing semicolon",
+			expectedLine: 6,
+			expectedCol:  2,
+		},
+		{
+			name:         "no position",
+			errStr:       "generic error with no position",
+			expectedLine: 0,
+			expectedCol:  0,
+		},
+		{
+			name:         "line 1 col 1 clamps to zero",
+			errStr:       "parse error at line 1, column 1: issue",
+			expectedLine: 0,
+			expectedCol:  0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			line, col := extractDataErrorPosition(tt.errStr)
+			if line != tt.expectedLine || col != tt.expectedCol {
+				t.Errorf("extractDataErrorPosition(%q) = (%d, %d), want (%d, %d)",
+					tt.errStr, line, col, tt.expectedLine, tt.expectedCol)
+			}
+		})
+	}
+}
+
+// === Gap #5: findFunctionContext edge cases ===
+
+func TestFindFunctionContextMultiLine(t *testing.T) {
+	text := "from test\n| put y := ceil(\n  x"
+	pos := Position{Line: 2, Character: 3} // after "  x"
+
+	funcName, paramIndex := findFunctionContext(text, pos)
+	if funcName != "ceil" {
+		t.Errorf("Expected funcName 'ceil', got %q", funcName)
+	}
+	if paramIndex != 0 {
+		t.Errorf("Expected paramIndex 0, got %d", paramIndex)
+	}
+}
+
+func TestFindFunctionContextCursorAtParen(t *testing.T) {
+	// Cursor right at the opening paren with no preceding identifier
+	text := "("
+	pos := Position{Line: 0, Character: 1}
+
+	funcName, _ := findFunctionContext(text, pos)
+	if funcName != "" {
+		t.Errorf("Expected empty funcName for bare paren, got %q", funcName)
+	}
+}
+
+func TestFindFunctionContextCharOverflow(t *testing.T) {
+	// Cursor character beyond line length
+	text := "ceil(x)"
+	pos := Position{Line: 0, Character: 999}
+
+	funcName, _ := findFunctionContext(text, pos)
+	// Should not crash; should handle gracefully
+	// With character overflow, entire line is used
+	if funcName != "" {
+		// Outside the paren, no function context
+		t.Logf("funcName=%q (may vary based on handling)", funcName)
+	}
+}
+
+func TestFindFunctionContextLineOverflow(t *testing.T) {
+	text := "ceil(x)"
+	pos := Position{Line: 99, Character: 0}
+
+	funcName, _ := findFunctionContext(text, pos)
+	if funcName != "" {
+		t.Errorf("Expected empty funcName for out-of-bounds line, got %q", funcName)
+	}
+}
+
+func TestFindFunctionContextNestedCalls(t *testing.T) {
+	text := "len(trim(x, "
+	pos := Position{Line: 0, Character: 13}
+
+	funcName, paramIndex := findFunctionContext(text, pos)
+	if funcName != "trim" {
+		t.Errorf("Expected funcName 'trim', got %q", funcName)
+	}
+	if paramIndex != 1 {
+		t.Errorf("Expected paramIndex 1, got %d", paramIndex)
+	}
+}
+
+func TestFindFunctionContextNoParen(t *testing.T) {
+	text := "from test | sort x"
+	pos := Position{Line: 0, Character: 18}
+
+	funcName, _ := findFunctionContext(text, pos)
+	if funcName != "" {
+		t.Errorf("Expected empty funcName outside parens, got %q", funcName)
+	}
+}
+
+// === Gap #6: Data file formatting options ===
+
+func TestFormatDataDocumentTrimTrailingWhitespace(t *testing.T) {
+	text := `{name: "test", value: 42}`
+	opts := FormattingOptions{
+		TabSize:                4,
+		InsertSpaces:           true,
+		TrimTrailingWhitespace: true,
+	}
+
+	result := formatDataDocument(text, opts)
+	lines := strings.Split(result, "\n")
+	for i, line := range lines {
+		if strings.HasSuffix(line, " ") || strings.HasSuffix(line, "\t") {
+			t.Errorf("Line %d has trailing whitespace: %q", i, line)
+		}
+	}
+}
+
+func TestFormatDataDocumentInsertFinalNewline(t *testing.T) {
+	text := `{name: "test", value: 42}`
+	opts := FormattingOptions{
+		TabSize:            4,
+		InsertSpaces:       true,
+		InsertFinalNewline: true,
+	}
+
+	result := formatDataDocument(text, opts)
+	if !strings.HasSuffix(result, "\n") {
+		t.Errorf("Expected final newline, got %q", result)
+	}
+}
+
+func TestFormatDataDocumentTrimFinalNewlines(t *testing.T) {
+	text := `{name: "test", value: 42}`
+	opts := FormattingOptions{
+		TabSize:           4,
+		InsertSpaces:      true,
+		TrimFinalNewlines: true,
+	}
+
+	result := formatDataDocument(text, opts)
+	if strings.HasSuffix(result, "\n") {
+		t.Errorf("Expected no final newline when trimming, got %q", result)
+	}
+}
+
+func TestFormatDataDocumentTabsNotSpaces(t *testing.T) {
+	text := `{name: "test", value: 42}`
+	opts := FormattingOptions{
+		TabSize:      4,
+		InsertSpaces: false, // Use tabs
+	}
+
+	result := formatDataDocument(text, opts)
+	// Should produce valid formatted output (not crash)
+	if !strings.Contains(result, "name") {
+		t.Errorf("Expected formatted output to contain 'name', got %q", result)
+	}
+}
+
+func TestFormatDataDocumentInvalidData(t *testing.T) {
+	text := "this is not valid sup data {{{"
+	opts := FormattingOptions{TabSize: 4, InsertSpaces: true}
+
+	result := formatDataDocument(text, opts)
+	// Should return original text when parsing fails
+	if result != text {
+		t.Errorf("Expected original text for invalid data, got %q", result)
+	}
+}
+
+func TestFormatDataDocumentEmpty(t *testing.T) {
+	text := ""
+	opts := FormattingOptions{TabSize: 4, InsertSpaces: true}
+
+	result := formatDataDocument(text, opts)
+	if result != text {
+		t.Errorf("Expected empty string for empty input, got %q", result)
+	}
+}
+
+func TestFormatDataDocumentCombinedOptions(t *testing.T) {
+	text := `{name: "test", value: 42}`
+	opts := FormattingOptions{
+		TabSize:                4,
+		InsertSpaces:           true,
+		TrimTrailingWhitespace: true,
+		TrimFinalNewlines:      true,
+		InsertFinalNewline:     true, // InsertFinalNewline should win over TrimFinalNewlines
+	}
+
+	result := formatDataDocument(text, opts)
+	// TrimFinalNewlines runs first, then InsertFinalNewline adds one back
+	if !strings.HasSuffix(result, "\n") {
+		t.Errorf("InsertFinalNewline should add newline after TrimFinalNewlines, got %q", result)
+	}
+
+	// No trailing whitespace on any line
+	lines := strings.Split(result, "\n")
+	for i, line := range lines {
+		if strings.HasSuffix(line, " ") || strings.HasSuffix(line, "\t") {
+			t.Errorf("Line %d has trailing whitespace: %q", i, line)
+		}
+	}
+}
+
+// === Additional tokenizer coverage: SuperSQL formatting options ===
+
+func TestFormatSuperSQLTrimFinalNewlines(t *testing.T) {
+	input := "from test\n\n\n"
+	opts := FormattingOptions{
+		TabSize:           2,
+		InsertSpaces:      true,
+		TrimFinalNewlines: true,
+	}
+
+	result := formatDocument(input, opts)
+	if strings.HasSuffix(result, "\n") {
+		t.Errorf("Expected no final newlines when trimming, got %q", result)
+	}
+}
+
+func TestFormatSuperSQLCombinedTrimAndInsert(t *testing.T) {
+	input := "from test\n\n\n"
+	opts := FormattingOptions{
+		TabSize:            2,
+		InsertSpaces:       true,
+		TrimFinalNewlines:  true,
+		InsertFinalNewline: true,
+	}
+
+	result := formatDocument(input, opts)
+	// Should have exactly one trailing newline
+	if !strings.HasSuffix(result, "\n") {
+		t.Errorf("Expected exactly one final newline, got %q", result)
+	}
+	trimmed := strings.TrimRight(result, "\n")
+	if strings.HasSuffix(trimmed, "\n") {
+		t.Errorf("Expected only one final newline, got multiple: %q", result)
+	}
+}
