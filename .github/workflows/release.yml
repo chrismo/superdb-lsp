@@ -68,8 +68,6 @@ jobs:
             goarch: amd64
           - goos: darwin
             goarch: arm64
-          - goos: windows
-            goarch: amd64
 
     steps:
       - uses: actions/checkout@v4
@@ -91,9 +89,6 @@ jobs:
           CGO_ENABLED: 0
         run: |
           OUTPUT="superdb-lsp-${{ matrix.goos }}-${{ matrix.goarch }}"
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            OUTPUT="${OUTPUT}.exe"
-          fi
           go build -ldflags="-s -w" -o "$OUTPUT" .
           echo "Built $OUTPUT"
 
@@ -172,7 +167,6 @@ jobs:
             | Linux | ARM64 | `superdb-lsp-linux-arm64` |
             | macOS | x64 | `superdb-lsp-darwin-amd64` |
             | macOS | ARM64 (Apple Silicon) | `superdb-lsp-darwin-arm64` |
-            | Windows | x64 | `superdb-lsp-windows-amd64.exe` |
 
             #### TextMate Bundle
             - `spq-textmate-bundle.zip` - SuperSQL syntax highlighting
