@@ -59,15 +59,20 @@ The LSP server communicates via stdin/stdout using the Language Server Protocol.
 Try the LSP without editor setup:
 
 ```bash
-# Build
-cd lsp && go build -o superdb-lsp .
-
-# Send an initialize request
-echo -e 'Content-Length: 58\r\n\r\n{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
-  | ./superdb-lsp 2>/dev/null
+# Build and send an initialize request
+make build
+printf 'Content-Length: 58\r\n\r\n{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
+  | lsp/lsp 2>/dev/null
 ```
 
 You should see a JSON response with `capabilities` and `serverInfo`.
+
+For a full smoke test that exercises diagnostics, completion, hover,
+formatting, and shutdown:
+
+```bash
+make build && lsp/smoke-test.sh
+```
 
 ### VS Code
 
