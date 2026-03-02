@@ -1,0 +1,13 @@
+name = "tab indentation"
+
+[options]
+tabSize = 4
+insertSpaces = false
+
+input = '''
+from test|count()|sort x'''
+
+expected = '''
+from test
+| count()
+| sort x'''

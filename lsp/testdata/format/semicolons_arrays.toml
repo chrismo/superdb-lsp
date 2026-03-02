@@ -1,0 +1,11 @@
+name = "semicolons and array literals"
+
+[options]
+tabSize = 2
+insertSpaces = true
+
+input = '''
+from test; put x := [1,2,3]'''
+
+expected = '''
+from test; put x := [1, 2, 3]'''
