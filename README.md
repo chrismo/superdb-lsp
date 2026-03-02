@@ -1,8 +1,6 @@
-# SuperDB Syntax Highlighting
+# SuperDB Language Support
 
-Syntax highlighting support for [SuperDB](https://github.com/brimdata/super) query languages:
-
-- **SPQ (SuperSQL)** - The SuperDB query language
+Editor support for [SuperDB](https://github.com/brimdata/super)'s SuperSQL (SPQ) query language, including syntax highlighting and a language server.
 
 ## Components
 
@@ -147,7 +145,7 @@ Keywords are defined in the `repository` section of the grammar file. To add a n
 
 - [ ] VS Code extension
 - [ ] GitHub Linguist PR for `.spq` file highlighting
-- [ ] Language Server Protocol (LSP) for rich IDE features
+- [x] Language Server Protocol (LSP) for rich IDE features
 - [ ] IntelliJ native plugin
 
 ## Related Projects

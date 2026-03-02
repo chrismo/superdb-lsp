@@ -27,7 +27,7 @@ The LSP server's keyword, function, operator, and type lists are synchronized wi
 
 These files can be updated independently, so version reflects the latest change to any of them.
 
-Last synchronized: January 30, 2026
+Last synchronized: February 27, 2026 (brimdata/super v0.2.0)
 
 ## Installation
 
@@ -196,16 +196,23 @@ The server logs to stderr, so you can capture logs:
 
 ```
 lsp/
-├── main.go          # Entry point and server loop
-├── protocol.go      # LSP protocol types
-├── handlers.go      # Request/notification handlers
-├── diagnostics.go   # Parsing and diagnostic generation
-├── completion.go    # Completion item generation
-├── hover.go         # Hover documentation
-├── signature.go     # Function signature help
-├── format.go        # Document formatting
-├── server_test.go   # Test harness
-└── go.mod           # Go module definition
+├── main.go                # Entry point and server loop
+├── protocol.go            # LSP protocol types
+├── handlers.go            # Request/notification handlers
+├── diagnostics.go         # Query parsing and diagnostics
+├── data_diagnostics.go    # SUP data file diagnostics
+├── completion.go          # Completion item generation
+├── hover.go               # Hover documentation
+├── signature.go           # Function signature help
+├── format.go              # Query formatting
+├── data_format.go         # SUP data file formatting
+├── builtins.go            # Builtin registry and types
+├── grammar_generated.go   # Generated from PEG grammar (go generate)
+├── migration.go           # Grammar migration helpers
+├── version.go             # Version constants
+├── server_test.go         # Test harness
+├── format_golden_test.go  # Golden file tests for formatting
+└── go.mod                 # Go module definition
 ```
 
 ## SuperSQL Reference
@@ -254,30 +261,26 @@ lsp/
 |---------|------------|--------|
 | **Diagnostics** | `textDocument/publishDiagnostics` | :white_check_mark: Implemented |
 | **Completion** | `textDocument/completion` | :white_check_mark: Implemented |
+| **Hover** | `textDocument/hover` | :white_check_mark: Implemented |
+| **Signature Help** | `textDocument/signatureHelp` | :white_check_mark: Implemented |
+| **Formatting** | `textDocument/formatting` | :white_check_mark: Implemented |
 
 ### Planned Features
 
-#### Tier 1: Navigation
+#### Navigation
 | Feature | LSP Method | Description |
 |---------|------------|-------------|
-| **Hover** | `textDocument/hover` | Show docs for functions, types, operators on hover |
 | **Go to Definition** | `textDocument/definition` | Jump to func/type/const declarations |
 | **Document Symbols** | `textDocument/documentSymbol` | File outline showing funcs, types, consts |
 
-#### Tier 2: References & Refactoring
+#### References & Refactoring
 | Feature | LSP Method | Description |
 |---------|------------|-------------|
 | **Find References** | `textDocument/references` | Find all usages of a symbol |
 | **Rename** | `textDocument/rename` | Rename symbol across file(s) |
-| **Signature Help** | `textDocument/signatureHelp` | Parameter hints while typing `func(` |
-
-#### Tier 3: Formatting & Actions
-| Feature | LSP Method | Description |
-|---------|------------|-------------|
-| **Formatting** | `textDocument/formatting` | Auto-format code |
 | **Code Actions** | `textDocument/codeAction` | Quick fixes, refactors |
 
-#### Tier 4: Advanced
+#### Advanced
 | Feature | LSP Method | Description |
 |---------|------------|-------------|
 | **Semantic Tokens** | `textDocument/semanticTokens` | Richer highlighting than lexer (e.g., distinguish local vs global) |

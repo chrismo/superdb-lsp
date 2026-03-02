@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.0.0] - 2026-03-01
+
+### Changed
+- Synced with brimdata/super v0.2.0
+- Replaced manual grammar extraction with `go generate`
+- Dropped Windows from release builds
+
+### Added
+- SQL type aliases: `character`, `character varying`, `double precision`
+- Breaking change detection to `/sync` command
+
 ## [0.1.0.0] - 2026-01-30
 
 ### Added
